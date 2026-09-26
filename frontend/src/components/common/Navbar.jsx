@@ -39,9 +39,14 @@ const Navbar = () => {
         <BsNavbar.Collapse id="main-navbar-nav">
           <Nav className="ms-auto align-items-center gap-2">
             {isAuthenticated && (
-              <Nav.Link as={NavLink} to="/dashboard" className="fw-medium">
-                <i className="bi bi-speedometer2 me-1"></i> Dashboard
-              </Nav.Link>
+              <>
+                <Nav.Link as={NavLink} to="/dashboard" className="fw-medium">
+                  <i className="bi bi-speedometer2 me-1"></i> Dashboard
+                </Nav.Link>
+                <Nav.Link as={NavLink} to="/patients" className="fw-medium">
+                  <i className="bi bi-people me-1"></i> Patients
+                </Nav.Link>
+              </>
             )}
             <Nav.Link as={NavLink} to="/" end className="fw-medium">
               <i className="bi bi-activity me-1"></i> System Health
