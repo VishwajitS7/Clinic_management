@@ -1,13 +1,12 @@
 const express = require('express');
 const healthRoutes = require('./healthRoutes');
+const authRoutes = require('./authRoutes');
 
 const router = express.Router();
 
-// Mount Health Check
+// Mount Health Check & Auth
 router.use('/', healthRoutes);
-
-// Modular routes for subsequent phases will be mounted here:
-// router.use('/auth', authRoutes);
+router.use('/auth', authRoutes);
 // router.use('/patients', patientRoutes);
 // router.use('/doctors', doctorRoutes);
 // router.use('/schedules', scheduleRoutes);
