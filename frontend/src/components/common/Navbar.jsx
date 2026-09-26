@@ -49,6 +49,9 @@ const Navbar = () => {
                 <Nav.Link as={NavLink} to="/doctors" className="fw-medium">
                   <i className="bi bi-person-badge me-1"></i> Doctors
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/schedules" className="fw-medium">
+                  <i className="bi bi-calendar-range me-1"></i> Schedules
+                </Nav.Link>
               </>
             )}
             <Nav.Link as={NavLink} to="/" end className="fw-medium">

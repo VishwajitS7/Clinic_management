@@ -7,8 +7,17 @@ const {
   updateDoctorStatus,
   getSpecializations,
 } = require('../controllers/doctorController');
+const {
+  getDoctorSchedules,
+  createSchedule,
+  getAvailableSlots,
+} = require('../controllers/scheduleController');
 const { authenticateUser, authorizeRoles } = require('../middleware/authMiddleware');
 const { validateDoctorInput } = require('../validators/doctorValidators');
+const {
+  validateScheduleInput,
+  validateAvailableSlotsQuery,
+} = require('../validators/scheduleValidators');
 
 const router = express.Router();
 
@@ -16,6 +25,15 @@ const router = express.Router();
 router.use(authenticateUser);
 
 router.get('/specializations', getSpecializations);
+
+// Section 15: Available Slots API
+router.get('/:doctorId/available-slots', validateAvailableSlotsQuery, getAvailableSlots);
+
+// Schedules sub-routes
+router
+  .route('/:doctorId/schedules')
+  .get(getDoctorSchedules)
+  .post(authorizeRoles('ADMIN', 'DOCTOR'), validateScheduleInput, createSchedule);
 
 router
   .route('/')
