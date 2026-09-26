@@ -1,14 +1,16 @@
+const path = require('path');
+const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+
+// Ensure env variables are loaded
+if (!process.env.MONGODB_URI) {
+  dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+}
 
 let isConnected = false;
 
 const connectDB = async () => {
-  const mongoURI = process.env.MONGODB_URI;
-
-  if (!mongoURI) {
-    console.error(' [Database Error]: MONGODB_URI is not defined in environment variables.');
-    return false;
-  }
+  const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/clinic_manager';
 
   try {
     const conn = await mongoose.connect(mongoURI, {
