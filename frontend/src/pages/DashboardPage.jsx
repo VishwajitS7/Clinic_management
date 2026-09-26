@@ -147,10 +147,15 @@ const DashboardPage = () => {
           </Card>
         </Col>
         <Col sm={6} md={3}>
-          <Card className="clinic-card border-0 shadow-sm text-center p-3 h-100">
+          <Card
+            as={Link}
+            to="/doctors"
+            className="clinic-card border-0 shadow-sm text-center p-3 h-100 text-decoration-none"
+            style={{ cursor: 'pointer' }}
+          >
             <i className="bi bi-person-badge fs-2 text-success mb-2"></i>
-            <h6 className="fw-bold mb-1">Doctors</h6>
-            <p className="text-muted small mb-0">Phase 5 Profiles</p>
+            <h6 className="fw-bold mb-1 text-dark">Doctors</h6>
+            <p className="text-muted small mb-0">Profiles & Schedules</p>
           </Card>
         </Col>
         <Col sm={6} md={3}>
