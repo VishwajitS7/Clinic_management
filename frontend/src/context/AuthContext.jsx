@@ -64,6 +64,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Register handler
+  const register = async (userData) => {
+    setLoading(true);
+    setAuthError(null);
+
+    try {
+      const response = await api.post('/auth/register', userData);
+      if (response.success && response.data) {
+        const { token: receivedToken, user: receivedUser, doctor: receivedDoctor } = response.data;
+        localStorage.setItem('clinic_token', receivedToken);
+        setToken(receivedToken);
+        setUser(receivedUser);
+        setDoctor(receivedDoctor || null);
+        return { success: true, user: receivedUser };
+      }
+      throw new Error(response.message || 'Registration failed');
+    } catch (err) {
+      const message = err.message || 'Registration failed';
+      setAuthError(message);
+      return { success: false, error: message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Logout handler
   const logout = async () => {
     try {
@@ -89,6 +114,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         authError,
         login,
+        register,
         logout,
       }}
     >

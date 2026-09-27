@@ -30,6 +30,20 @@ const getMe = async (req, res, next) => {
   }
 };
 
+const register = async (req, res, next) => {
+  try {
+    const result = await authService.registerUser(req.body);
+
+    return sendSuccess(res, {
+      statusCode: 201,
+      message: 'Registration successful. Account created.',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const logout = async (req, res, next) => {
   return sendSuccess(res, {
     statusCode: 200,
@@ -39,6 +53,7 @@ const logout = async (req, res, next) => {
 
 module.exports = {
   login,
+  register,
   getMe,
   logout,
 };

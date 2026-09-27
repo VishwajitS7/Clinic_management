@@ -4,6 +4,7 @@ import Navbar from './components/common/Navbar';
 import HealthCheckPage from './pages/HealthCheckPage';
 import ArchitecturePage from './pages/ArchitecturePage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import PatientsPage from './pages/PatientsPage';
 import PatientDetailsPage from './pages/PatientDetailsPage';
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<HealthCheckPage />} />
           <Route path="/architecture" element={<ArchitecturePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
           {/* Protected Routes */}
           <Route

@@ -109,6 +109,13 @@ const LoginPage = () => {
                     </>
                   )}
                 </Button>
+
+                <div className="text-center mt-3">
+                  <span className="text-muted small">Don't have an account? </span>
+                  <Link to="/register" className="fw-semibold small text-primary text-decoration-none">
+                    Register here &rarr;
+                  </Link>
+                </div>
               </Form>
             </Card.Body>
           </Card>

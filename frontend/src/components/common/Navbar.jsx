@@ -218,17 +218,30 @@ const Navbar = () => {
                 </Button>
               </div>
             ) : (
-              <Button
-                as={Link}
-                to="/login"
-                variant="primary"
-                size="sm"
-                onClick={closeNav}
-                className="d-flex align-items-center justify-content-center gap-1 px-3 shadow-sm"
-              >
-                <i className="bi bi-box-arrow-in-right"></i>
-                <span>Sign In to Portal</span>
-              </Button>
+              <div className="d-flex align-items-center gap-2 mt-2 mt-xl-0">
+                <Button
+                  as={Link}
+                  to="/login"
+                  variant="outline-primary"
+                  size="sm"
+                  onClick={closeNav}
+                  className="d-flex align-items-center justify-content-center gap-1 px-3"
+                >
+                  <i className="bi bi-box-arrow-in-right"></i>
+                  <span>Sign In</span>
+                </Button>
+                <Button
+                  as={Link}
+                  to="/register"
+                  variant="primary"
+                  size="sm"
+                  onClick={closeNav}
+                  className="d-flex align-items-center justify-content-center gap-1 px-3 shadow-sm"
+                >
+                  <i className="bi bi-person-plus"></i>
+                  <span>Register</span>
+                </Button>
+              </div>
             )}
           </Nav>
         </BsNavbar.Collapse>
