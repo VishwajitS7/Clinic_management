@@ -1,14 +1,54 @@
-/* Custom CSS for Clinic Appointment Manager */
+/* ==========================================================================
+   Clinic Appointment Manager - Enterprise UI Design System & Stylesheet
+   ========================================================================== */
+
 :root {
+  /* Color Palette */
   --primary-color: #0284c7;
   --primary-hover: #0369a1;
-  --primary-light: #f0f9ff;
+  --primary-light: #e0f2fe;
+  --primary-surface: #f0f9ff;
   --secondary-color: #0f766e;
+  --accent-emerald: #10b981;
+  --accent-violet: #6366f1;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+
+  /* Surfaces & Backgrounds */
   --bg-main: #f8fafc;
-  --card-bg: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fafafa;
   --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+
+  /* Typography */
+  --text-main: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+
+  /* Elevation Shadows */
+  --shadow-subtle: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+  --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
+  --shadow-hover: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --shadow-elevated: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+
+  /* Border Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+/* ==========================================================================
+   Base & Typography
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
 }
 
 body {
@@ -18,21 +58,61 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* ==========================================================================
    Navigation Bar Responsiveness & Styling
    ========================================================================== */
 .clinic-navbar {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.25s ease-in-out;
+  border-bottom: 1px solid var(--border-color) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1030;
+}
+
+.brand-icon-wrapper {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: transform 0.2s ease;
+}
+
+.clinic-navbar .navbar-brand:hover .brand-icon-wrapper {
+  transform: scale(1.05);
 }
 
 .nav-item-custom {
-  font-size: 0.9rem;
+  font-size: 0.885rem;
   font-weight: 500;
   color: #475569 !important;
   padding: 0.5rem 0.75rem !important;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: all 0.15s ease-in-out;
   display: flex;
   align-items: center;
@@ -50,11 +130,11 @@ body {
 }
 
 .nav-dropdown-custom .dropdown-toggle {
-  font-size: 0.9rem;
+  font-size: 0.885rem;
   font-weight: 500;
   color: #475569 !important;
   padding: 0.5rem 0.75rem !important;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: all 0.15s ease-in-out;
 }
 
@@ -65,18 +145,32 @@ body {
 
 .nav-dropdown-custom .dropdown-menu {
   border: 1px solid var(--border-color);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
+  box-shadow: var(--shadow-hover);
+  border-radius: var(--radius-md);
   padding: 0.5rem;
   min-width: 220px;
+  animation: fadeInDown 0.15s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .nav-dropdown-custom .dropdown-item {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  color: #334155;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
   transition: all 0.15s ease-in-out;
+  display: flex;
+  align-items: center;
 }
 
 .nav-dropdown-custom .dropdown-item:hover,
@@ -86,70 +180,123 @@ body {
   font-weight: 500;
 }
 
-/* Brand icon styling */
-.brand-icon-wrapper {
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Mobile Navbar Collapsible Styles */
+@media (max-width: 1199.98px) {
+  .clinic-navbar .navbar-collapse {
+    background-color: #ffffff;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-top: 0.5rem;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-color);
+  }
+
+  .nav-item-custom {
+    padding: 0.65rem 0.85rem !important;
+    font-size: 0.95rem;
+  }
+
+  .nav-dropdown-custom .dropdown-menu {
+    border: none;
+    box-shadow: none;
+    padding-left: 1.5rem;
+    background: transparent;
+  }
 }
 
 /* ==========================================================================
-   Card & Container Styling
+   Cards & Component Panels
    ========================================================================== */
 .clinic-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
-  transition: all 0.2s ease;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-subtle);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .clinic-card:hover, .hover-shadow:hover {
-  box-shadow: 0 6px 12px -2px rgba(15, 23, 42, 0.1) !important;
-  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover) !important;
+  transform: translateY(-2px);
 }
 
 .clinic-card-header {
-  padding: 1rem 1.25rem;
+  padding: 0.85rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
   background-color: #ffffff;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
   font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-main);
 }
 
 /* ==========================================================================
-   Table & Mobile Responsiveness
+   Data Tables & Mobile Viewports
    ========================================================================== */
 .table-responsive {
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   -webkit-overflow-scrolling: touch;
+}
+
+/* Enforce Minimum Width on Tables to Prevent Column Squishing on Mobile */
+.table-responsive > .table {
+  min-width: 660px;
+  margin-bottom: 0;
 }
 
 .table > :not(caption) > * > * {
   padding: 0.75rem 1rem;
+  vertical-align: middle;
 }
 
-@media (max-width: 768px) {
-  .table > :not(caption) > * > * {
-    padding: 0.5rem 0.5rem;
-    font-size: 0.85rem;
-  }
+.table-hover > tbody > tr:hover {
+  background-color: #f8fafc;
+}
 
-  .clinic-card {
-    border-radius: 8px;
-  }
-
-  h2 {
-    font-size: 1.5rem !important;
-  }
+.table thead th {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
 }
 
 /* ==========================================================================
-   Status Badges
+   Interactive Buttons & Badges
    ========================================================================== */
+.btn {
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease-in-out;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: #bae6fd;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Status Badges */
 .badge-status-scheduled {
   background-color: #e0f2fe;
   color: #0369a1;
@@ -175,23 +322,46 @@ body {
 }
 
 .badge-status-noshow {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border: 1px solid #e5e7eb;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
 }
 
-/* Button & interactive styling */
-.btn-clinic-primary {
-  background-color: var(--primary-color);
+/* Form Focus Rings */
+.form-control:focus, .form-select:focus {
   border-color: var(--primary-color);
-  color: #ffffff;
-  font-weight: 500;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
 
-.btn-clinic-primary:hover {
-  background-color: var(--primary-hover);
-  border-color: var(--primary-hover);
-  color: #ffffff;
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Modals Responsiveness
+   ========================================================================== */
+.modal-content {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-elevated);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.15rem 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border-color);
+  padding: 1rem 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  max-height: calc(85vh - 130px);
+  overflow-y: auto;
 }
 
 /* Pulse indicator for live health */
@@ -200,14 +370,14 @@ body {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #10b981;
+  background-color: var(--accent-emerald);
   box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
   animation: pulse 2s infinite;
 }
 
 .pulse-indicator-danger {
-  background-color: #ef4444;
-  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  background-color: var(--accent-rose);
+  box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7);
 }
 
 @keyframes pulse {
@@ -226,7 +396,40 @@ body {
 }
 
 /* ==========================================================================
-   Print Styles for Prescriptions & Invoices
+   Media Queries & Responsive Tweaks
+   ========================================================================== */
+@media (max-width: 768px) {
+  h2 {
+    font-size: 1.35rem !important;
+  }
+
+  .clinic-card-header {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    font-size: 0.925rem;
+  }
+
+  .container {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+  }
+
+  .h3 {
+    font-size: 1.4rem;
+  }
+}
+
+/* ==========================================================================
+   Print Styles for Clinical Prescriptions & Invoices
    ========================================================================== */
 @media print {
   .clinic-navbar,

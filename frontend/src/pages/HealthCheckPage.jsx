@@ -39,10 +39,10 @@ const HealthCheckPage = () => {
         <div>
           <h2 className="fw-bold mb-1 d-flex align-items-center gap-2">
             <i className="bi bi-shield-check text-primary"></i>
-            Phase 1: Project Foundation & System Health
+            System Health & Operational Status
           </h2>
           <p className="text-muted mb-0">
-            Full-stack environment verification, layered architecture configuration, and API connectivity.
+            Real-time backend service diagnostics, MongoDB Atlas connectivity, and API response metrics.
           </p>
         </div>
         <div className="mt-2 mt-md-0 d-flex align-items-center gap-3">

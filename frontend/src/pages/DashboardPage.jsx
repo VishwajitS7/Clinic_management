@@ -172,23 +172,29 @@ const DashboardPage = () => {
 
           {/* Appointment Status Distribution Bar */}
           <Card className="border-0 shadow-sm mb-4 p-3">
-            <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-2">
               <span className="small fw-semibold text-muted text-uppercase">
                 Appointment Lifecycle Distribution
               </span>
-              <div className="d-flex gap-3 small">
+              <div className="d-flex flex-wrap gap-2 small">
                 <span><Badge bg="info">Scheduled: {statusBreakdown.SCHEDULED || 0}</Badge></span>
                 <span><Badge bg="primary">Confirmed: {statusBreakdown.CONFIRMED || 0}</Badge></span>
                 <span><Badge bg="success">Completed: {statusBreakdown.COMPLETED || 0}</Badge></span>
                 <span><Badge bg="danger">Cancelled: {statusBreakdown.CANCELLED || 0}</Badge></span>
               </div>
             </div>
-            <ProgressBar style={{ height: '10px' }}>
-              <ProgressBar variant="info" now={(statusBreakdown.SCHEDULED || 0) * 10} key={1} />
-              <ProgressBar variant="primary" now={(statusBreakdown.CONFIRMED || 0) * 10} key={2} />
-              <ProgressBar variant="success" now={(statusBreakdown.COMPLETED || 0) * 10} key={3} />
-              <ProgressBar variant="danger" now={(statusBreakdown.CANCELLED || 0) * 10} key={4} />
-            </ProgressBar>
+            {(() => {
+              const total = (statusBreakdown.SCHEDULED || 0) + (statusBreakdown.CONFIRMED || 0) + (statusBreakdown.COMPLETED || 0) + (statusBreakdown.CANCELLED || 0);
+              const getPct = (val) => total > 0 ? (val / total) * 100 : 0;
+              return (
+                <ProgressBar style={{ height: '8px' }} className="rounded-pill overflow-hidden">
+                  <ProgressBar variant="info" now={getPct(statusBreakdown.SCHEDULED || 0)} key={1} />
+                  <ProgressBar variant="primary" now={getPct(statusBreakdown.CONFIRMED || 0)} key={2} />
+                  <ProgressBar variant="success" now={getPct(statusBreakdown.COMPLETED || 0)} key={3} />
+                  <ProgressBar variant="danger" now={getPct(statusBreakdown.CANCELLED || 0)} key={4} />
+                </ProgressBar>
+              );
+            })()}
           </Card>
 
           {/* Role Quick Links / Navigation Directory */}
