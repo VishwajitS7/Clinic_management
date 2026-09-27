@@ -112,7 +112,7 @@ const getInvoices = async (queryParams) => {
 
   const [invoices, total] = await Promise.all([
     Invoice.find(query)
-      .populate('patient', 'patientCode firstName lastName phone email')
+      .populate('patient', 'patientCode name firstName lastName phone email')
       .populate({
         path: 'appointment',
         select: 'appointmentCode appointmentDate doctor status',
@@ -251,7 +251,7 @@ const getPayments = async (queryParams) => {
       .populate({
         path: 'invoice',
         select: 'invoiceNumber totalAmount amountPaid amountDue status patient',
-        populate: { path: 'patient', select: 'firstName lastName patientCode' },
+        populate: { path: 'patient', select: 'name firstName lastName patientCode' },
       })
       .populate('createdBy', 'name email role')
       .sort({ paidAt: -1 })

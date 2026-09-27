@@ -88,7 +88,7 @@ const getPrescriptions = async (queryParams, currentUser) => {
 
   const [prescriptions, total] = await Promise.all([
     Prescription.find(query)
-      .populate('patient', 'patientCode firstName lastName phone email gender bloodGroup')
+      .populate('patient', 'patientCode name firstName lastName phone email gender bloodGroup')
       .populate({
         path: 'doctor',
         populate: { path: 'user', select: 'name email' },

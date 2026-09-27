@@ -370,7 +370,7 @@ const PrescriptionsPage = () => {
                       </td>
                       <td>
                         <div className="fw-semibold text-dark">
-                          {rx.patient ? `${rx.patient.firstName} ${rx.patient.lastName}` : 'N/A'}
+                          {rx.patient?.name || (rx.patient?.firstName ? `${rx.patient.firstName} ${rx.patient.lastName || ''}`.trim() : 'Patient')}
                         </div>
                         <div className="text-muted small">
                           {rx.patient?.patientCode} &bull; {rx.patient?.bloodGroup || 'Blood N/A'}
@@ -482,7 +482,7 @@ const PrescriptionsPage = () => {
                 <option value="">-- Choose Completed Consultation --</option>
                 {eligibleConsultations.map((c) => (
                   <option key={c._id} value={c._id}>
-                    {c.patient?.firstName} {c.patient?.lastName} ({c.patient?.patientCode}) &bull; Diagnosis: {c.diagnosis} &bull; Dr. {c.doctor?.user?.name}
+                    {c.patient?.name || `${c.patient?.firstName || ''} ${c.patient?.lastName || ''}`.trim()} ({c.patient?.patientCode}) &bull; Diagnosis: {c.diagnosis} &bull; Dr. {c.doctor?.user?.name}
                   </option>
                 ))}
               </Form.Select>
@@ -640,7 +640,7 @@ const PrescriptionsPage = () => {
                   <Col xs={6} md={3}>
                     <strong className="text-muted d-block">PATIENT NAME</strong>
                     <span className="fw-bold">
-                      {selectedPrescription.patient?.firstName} {selectedPrescription.patient?.lastName}
+                      {selectedPrescription.patient?.name || `${selectedPrescription.patient?.firstName || ''} ${selectedPrescription.patient?.lastName || ''}`.trim()}
                     </span>
                   </Col>
                   <Col xs={6} md={3}>

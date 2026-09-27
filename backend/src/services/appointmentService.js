@@ -130,7 +130,7 @@ const createAppointment = async (appointmentData, userId) => {
   });
 
   return await Appointment.findById(appointment._id)
-    .populate('patient', 'patientCode firstName lastName phone email gender dateOfBirth bloodGroup')
+    .populate('patient', 'patientCode name firstName lastName phone email gender dateOfBirth bloodGroup')
     .populate({
       path: 'doctor',
       populate: { path: 'user', select: 'name email phone' },
@@ -212,7 +212,7 @@ const getAppointments = async (queryParams, currentUser) => {
 
   const [appointments, total] = await Promise.all([
     Appointment.find(query)
-      .populate('patient', 'patientCode firstName lastName phone email gender bloodGroup')
+      .populate('patient', 'patientCode name firstName lastName phone email gender bloodGroup')
       .populate({
         path: 'doctor',
         populate: { path: 'user', select: 'name email phone' },

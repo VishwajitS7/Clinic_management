@@ -46,11 +46,11 @@ const getDashboardStats = async (currentUser) => {
         appointmentDate: { $gte: startOfDay },
         status: { $in: ['SCHEDULED', 'CONFIRMED'] },
       })
-        .populate('patient', 'firstName lastName patientCode phone bloodGroup')
+        .populate('patient', 'name firstName lastName patientCode phone bloodGroup')
         .sort({ appointmentDate: 1, startTime: 1 })
         .limit(5),
       Consultation.find({ doctor: doctorId })
-        .populate('patient', 'firstName lastName patientCode')
+        .populate('patient', 'name firstName lastName patientCode')
         .populate('appointment', 'appointmentCode')
         .sort({ createdAt: -1 })
         .limit(5),
@@ -116,7 +116,7 @@ const getDashboardStats = async (currentUser) => {
       },
     ]),
     Appointment.find()
-      .populate('patient', 'firstName lastName patientCode phone')
+      .populate('patient', 'name firstName lastName patientCode phone')
       .populate({
         path: 'doctor',
         populate: { path: 'user', select: 'name' },
@@ -124,7 +124,7 @@ const getDashboardStats = async (currentUser) => {
       .sort({ createdAt: -1 })
       .limit(6),
     Invoice.find()
-      .populate('patient', 'firstName lastName patientCode')
+      .populate('patient', 'name firstName lastName patientCode')
       .sort({ createdAt: -1 })
       .limit(5),
     Payment.find()

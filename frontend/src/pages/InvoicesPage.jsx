@@ -402,7 +402,7 @@ const InvoicesPage = () => {
                       </td>
                       <td>
                         <div className="fw-semibold text-dark">
-                          {inv.patient ? `${inv.patient.firstName} ${inv.patient.lastName}` : 'N/A'}
+                          {inv.patient?.name || (inv.patient?.firstName ? `${inv.patient.firstName} ${inv.patient.lastName || ''}`.trim() : 'N/A')}
                         </div>
                         <div className="text-muted small">
                           {inv.patient?.patientCode}
@@ -517,7 +517,7 @@ const InvoicesPage = () => {
                     <option value="">-- Choose Patient --</option>
                     {patientsList.map((p) => (
                       <option key={p._id} value={p._id}>
-                        {p.patientCode} &bull; {p.firstName} {p.lastName}
+                        {p.patientCode} &bull; {p.name || `${p.firstName || ''} ${p.lastName || ''}`.trim()}
                       </option>
                     ))}
                   </Form.Select>
@@ -536,7 +536,7 @@ const InvoicesPage = () => {
                     <option value="">-- Choose Appointment --</option>
                     {appointmentsList.map((apt) => (
                       <option key={apt._id} value={apt._id}>
-                        {apt.appointmentCode} &bull; {apt.patient?.firstName} {apt.patient?.lastName} ({apt.startTime})
+                        {apt.appointmentCode} &bull; {apt.patient?.name || `${apt.patient?.firstName || ''} ${apt.patient?.lastName || ''}`.trim()} ({apt.startTime})
                       </option>
                     ))}
                   </Form.Select>
@@ -679,7 +679,7 @@ const InvoicesPage = () => {
                 <div className="d-flex justify-content-between align-items-center mb-1">
                   <span className="small text-muted">Patient:</span>
                   <span className="fw-semibold">
-                    {activeInvoiceForPayment.patient?.firstName} {activeInvoiceForPayment.patient?.lastName}
+                    {activeInvoiceForPayment.patient?.name || `${activeInvoiceForPayment.patient?.firstName || ''} ${activeInvoiceForPayment.patient?.lastName || ''}`.trim()}
                   </span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center">
@@ -791,7 +791,7 @@ const InvoicesPage = () => {
                   <Col xs={6} md={4}>
                     <strong className="text-muted d-block">BILLED TO (PATIENT)</strong>
                     <span className="fw-bold fs-6">
-                      {selectedInvoiceDetail.patient?.firstName} {selectedInvoiceDetail.patient?.lastName}
+                      {selectedInvoiceDetail.patient?.name || `${selectedInvoiceDetail.patient?.firstName || ''} ${selectedInvoiceDetail.patient?.lastName || ''}`.trim()}
                     </span>
                     <div className="text-muted">{selectedInvoiceDetail.patient?.patientCode}</div>
                   </Col>

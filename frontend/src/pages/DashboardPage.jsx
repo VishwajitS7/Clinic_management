@@ -300,7 +300,7 @@ const DashboardPage = () => {
                             {apt.appointmentCode}
                           </td>
                           <td className="fw-medium small">
-                            {apt.patient ? `${apt.patient.firstName} ${apt.patient.lastName}` : 'N/A'}
+                            {apt.patient?.name || (apt.patient?.firstName ? `${apt.patient.firstName} ${apt.patient.lastName || ''}`.trim() : 'N/A')}
                           </td>
                           <td className="small text-muted">
                             {new Date(apt.appointmentDate).toLocaleDateString()} ({apt.startTime})
@@ -350,7 +350,7 @@ const DashboardPage = () => {
                             {inv.invoiceNumber}
                           </td>
                           <td className="fw-medium small">
-                            {inv.patient ? `${inv.patient.firstName} ${inv.patient.lastName}` : 'N/A'}
+                            {inv.patient?.name || (inv.patient?.firstName ? `${inv.patient.firstName} ${inv.patient.lastName || ''}`.trim() : 'N/A')}
                           </td>
                           <td className="font-monospace fw-bold small">
                             ₹{inv.totalAmount?.toFixed(2)}

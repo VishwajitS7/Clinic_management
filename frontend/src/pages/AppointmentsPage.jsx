@@ -470,7 +470,7 @@ const AppointmentsPage = () => {
                       </td>
                       <td>
                         <div className="fw-semibold text-dark">
-                          {apt.patient ? `${apt.patient.firstName} ${apt.patient.lastName}` : 'N/A'}
+                          {apt.patient?.name || (apt.patient?.firstName ? `${apt.patient.firstName} ${apt.patient.lastName || ''}`.trim() : 'Patient')}
                         </div>
                         <div className="text-muted small">
                           {apt.patient?.patientCode} &bull; {apt.patient?.phone || 'No phone'}
@@ -629,7 +629,7 @@ const AppointmentsPage = () => {
                     <option value="">-- Choose Patient --</option>
                     {patientsList.map((p) => (
                       <option key={p._id} value={p._id}>
-                        {p.patientCode} - {p.firstName} {p.lastName} ({p.phone})
+                        {p.patientCode} - {p.name || `${p.firstName || ''} ${p.lastName || ''}`.trim()} ({p.phone})
                       </option>
                     ))}
                   </Form.Select>
@@ -762,8 +762,7 @@ const AppointmentsPage = () => {
             )}
 
             <div className="mb-3 p-2 bg-light rounded small">
-              <strong>Current Booking:</strong> {selectedAptForReschedule?.patient?.firstName}{' '}
-              {selectedAptForReschedule?.patient?.lastName} with {selectedAptForReschedule?.doctor?.user?.name} at{' '}
+              <strong>Current Booking:</strong> {selectedAptForReschedule?.patient?.name || `${selectedAptForReschedule?.patient?.firstName || ''} ${selectedAptForReschedule?.patient?.lastName || ''}`.trim()} with {selectedAptForReschedule?.doctor?.user?.name} at{' '}
               {selectedAptForReschedule?.startTime} - {selectedAptForReschedule?.endTime}
             </div>
 
@@ -849,7 +848,7 @@ const AppointmentsPage = () => {
                   Patient Information
                 </span>
                 <div className="fw-semibold">
-                  {selectedAptDetail.patient?.firstName} {selectedAptDetail.patient?.lastName}
+                  {selectedAptDetail.patient?.name || `${selectedAptDetail.patient?.firstName || ''} ${selectedAptDetail.patient?.lastName || ''}`.trim()}
                 </div>
                 <div className="small text-muted">
                   Code: {selectedAptDetail.patient?.patientCode} | Phone: {selectedAptDetail.patient?.phone} | Gender: {selectedAptDetail.patient?.gender}

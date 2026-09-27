@@ -323,7 +323,7 @@ const ConsultationsPage = () => {
                       </td>
                       <td>
                         <div className="fw-semibold text-dark">
-                          {c.patient ? `${c.patient.firstName} ${c.patient.lastName}` : 'N/A'}
+                          {c.patient?.name || (c.patient?.firstName ? `${c.patient.firstName} ${c.patient.lastName || ''}`.trim() : 'Patient')}
                         </div>
                         <div className="text-muted small">
                           {c.patient?.patientCode} &bull; {c.patient?.bloodGroup || 'Blood N/A'}
@@ -443,7 +443,7 @@ const ConsultationsPage = () => {
                 <option value="">-- Choose Active Appointment --</option>
                 {eligibleAppointments.map((apt) => (
                   <option key={apt._id} value={apt._id}>
-                    {apt.appointmentCode} &bull; {apt.patient?.firstName} {apt.patient?.lastName} &bull; Dr. {apt.doctor?.user?.name} ({apt.startTime})
+                    {apt.appointmentCode} &bull; {apt.patient?.name || `${apt.patient?.firstName || ''} ${apt.patient?.lastName || ''}`.trim()} &bull; Dr. {apt.doctor?.user?.name} ({apt.startTime})
                   </option>
                 ))}
               </Form.Select>
@@ -537,7 +537,7 @@ const ConsultationsPage = () => {
               <div className="d-flex justify-content-between align-items-center border-bottom pb-3">
                 <div>
                   <h6 className="fw-bold text-dark mb-0">
-                    Patient: {selectedConsultation.patient?.firstName} {selectedConsultation.patient?.lastName}
+                    Patient: {selectedConsultation.patient?.name || `${selectedConsultation.patient?.firstName || ''} ${selectedConsultation.patient?.lastName || ''}`.trim()}
                   </h6>
                   <span className="small text-muted">
                     Code: {selectedConsultation.patient?.patientCode} | Blood Group: {selectedConsultation.patient?.bloodGroup || 'N/A'}
