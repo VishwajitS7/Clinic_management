@@ -52,6 +52,9 @@ const Navbar = () => {
                 <Nav.Link as={NavLink} to="/schedules" className="fw-medium">
                   <i className="bi bi-calendar-range me-1"></i> Schedules
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/appointments" className="fw-medium">
+                  <i className="bi bi-calendar-check me-1"></i> Appointments
+                </Nav.Link>
               </>
             )}
             <Nav.Link as={NavLink} to="/" end className="fw-medium">

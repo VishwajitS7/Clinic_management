@@ -9,6 +9,7 @@ import PatientsPage from './pages/PatientsPage';
 import PatientDetailsPage from './pages/PatientDetailsPage';
 import DoctorsPage from './pages/DoctorsPage';
 import DoctorSchedulesPage from './pages/DoctorSchedulesPage';
+import AppointmentsPage from './pages/AppointmentsPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
@@ -60,6 +61,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DoctorSchedulesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments"
+            element={
+              <ProtectedRoute>
+                <AppointmentsPage />
               </ProtectedRoute>
             }
           />
