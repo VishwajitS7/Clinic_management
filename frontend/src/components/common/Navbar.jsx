@@ -209,6 +209,10 @@ const Navbar = () => {
                 <i className="bi bi-diagram-3 me-2 text-primary"></i>
                 Architecture & Models
               </NavDropdown.Item>
+              <NavDropdown.Item href="/demo.html" target="_blank" rel="noopener noreferrer" onClick={closeNav}>
+                <i className="bi bi-stars me-2 text-warning"></i>
+                Feature & RBAC Showcase
+              </NavDropdown.Item>
             </NavDropdown>
           </Nav>
 

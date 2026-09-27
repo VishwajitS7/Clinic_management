@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinic Appointment Manager — Feature & RBAC Demonstration</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'><path d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z'/></svg>" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --primary-light: #e0f2fe;
+      --emerald: #10b981;
+      --indigo: #6366f1;
+      --violet: #8b5cf6;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --dark-bg: #0b1120;
+      --dark-card: #131d31;
+      --dark-border: #1e293b;
+      --light-bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--light-bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ==========================================================================
+       Hero Section
+       ========================================================================== */
+    .hero {
+      background: radial-gradient(circle at 50% 0%, #1e293b 0%, var(--dark-bg) 100%);
+      color: #ffffff;
+      padding: 4.5rem 0 3.5rem;
+      border-bottom: 1px solid var(--dark-border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(2, 132, 199, 0.25) 0%, rgba(99, 102, 241, 0.15) 50%, transparent 70%);
+      filter: blur(50px);
+      pointer-events: none;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .hero-badge {
+      background: rgba(2, 132, 199, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: #94a3b8;
+      max-width: 760px;
+      margin-bottom: 2rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    /* Stats Banner */
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-label {
+      font-size: 0.825rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    /* ==========================================================================
+       Interactive RBAC Explorer
+       ========================================================================== */
+    .section {
+      padding: 4.5rem 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-header .tag {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .section-header h2 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* Role Tabs */
+    .role-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .role-tab-btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .role-tab-btn:hover {
+      border-color: #94a3b8;
+      color: var(--text-main);
+    }
+
+    .role-tab-btn.active[data-role="admin"] {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+
+    .role-tab-btn.active[data-role="doctor"] {
+      background: #10b981;
+      color: #ffffff;
+      border-color: #10b981;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .role-tab-btn.active[data-role="receptionist"] {
+      background: #6366f1;
+      color: #ffffff;
+      border-color: #6366f1;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Role Showcase Panel */
+    .role-panel {
+      display: none;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05);
+      padding: 2.5rem;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .role-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .role-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 2rem;
+    }
+
+    .role-info h3 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .role-info p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .role-credentials-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-width: 280px;
+    }
+
+    .cred-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .cred-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.885rem;
+    }
+
+    .cred-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: #e2e8f0;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+
+    /* Feature Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid #f1f5f9;
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .feature-card:hover {
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.05);
+    }
+
+    .feature-icon-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h4 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* Boundary Guard Section */
+    .boundary-guard {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .boundary-guard i {
+      font-size: 1.5rem;
+      color: #e11d48;
+      margin-top: 0.1rem;
+    }
+
+    .boundary-guard h5 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #9f1239;
+      margin-bottom: 0.25rem;
+    }
+
+    .boundary-guard p {
+      font-size: 0.875rem;
+      color: #be123c;
+      margin-bottom: 0;
+    }
+
+    /* ==========================================================================
+       Full Matrix Table
+       ========================================================================== */
+    .matrix-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04);
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .matrix-table th {
+      background: #f8fafc;
+      padding: 1rem 1.25rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .matrix-table td {
+      padding: 1.15rem 1.25rem;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+      font-size: 0.925rem;
+    }
+
+    .matrix-table tr:hover {
+      background: #f8fafc;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.785rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+    }
+
+    .badge-full {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    .badge-scoped {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    .badge-blocked {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .badge-view {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* ==========================================================================
+       All Doctors Credentials Grid
+       ========================================================================== */
+    .doctors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .doc-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .doc-card:hover {
+      border-color: #0284c7;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(2, 132, 199, 0.08);
+    }
+
+    .doc-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .doc-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #e0f2fe;
+      color: #0284c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .copy-btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      color: #334155;
+    }
+
+    .copy-btn:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .copy-btn.copied {
+      background: #dcfce7;
+      color: #15803d;
+      border-color: #86efac;
+    }
+
+    /* ==========================================================================
+       Workflow Flow Diagram
+       ========================================================================== */
+    .flow-steps {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      position: relative;
+      margin: 2rem 0;
+      gap: 1rem;
+    }
+
+    .flow-step {
+      flex: 1;
+      min-width: 170px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1rem;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark-bg);
+      color: #94a3b8;
+      padding: 3rem 0;
+      border-top: 1px solid var(--dark-border);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.1rem; }
+      .role-panel { padding: 1.5rem; }
+      .matrix-card { overflow-x: auto; }
+      .matrix-table { min-width: 650px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       HERO SECTION
+       ========================================================================== -->
+  <header class="hero">
+    <div class="container">
+      <span class="badge-pill hero-badge">
+        <i class="bi bi-shield-check"></i> Enterprise RBAC &amp; Clinical Workflow Engine
+      </span>
+      <h1>Clinic Appointment Manager</h1>
+      <p>
+        A production-engineered Healthcare Practice Management System with strict Role-Based Access Control, 
+        mathematical double-booking prevention, clinical SOAP consultations, electronic Rx dossiers, and financial cashiering.
+      </p>
+
+      <div class="hero-actions">
+        <a href="https://clinic-management-wine.vercel.app" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          <i class="bi bi-box-arrow-up-right"></i> Open Live Vercel App
+        </a>
+        <a href="#credentials" class="btn btn-secondary">
+          <i class="bi bi-key-fill"></i> View Doctor Credentials
+        </a>
+        <a href="#rbac-matrix" class="btn btn-secondary">
+          <i class="bi bi-table"></i> View RBAC Matrix
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-value">3 Roles</span>
+          <span class="stat-label">Admin, Doctor, Receptionist</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">6 Modules</span>
+          <span class="stat-label">Appointments, Patients, Doctors, Shifts, Consults, Billing</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">0 Overlaps</span>
+          <span class="stat-label">Conflict Prevention Math</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">Cloud-Native</span>
+          <span class="stat-label">Vercel CDN + Express + MongoDB Atlas</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       CLINICAL WORKFLOW LIFECYCLE
+       ========================================================================== -->
+  <section class="section" style="background: #ffffff; border-bottom: 1px solid #e2e8f0;">
+    <div class="container">
+      <div class="section-header">
+        <span class="tag">End-to-End Pipeline</span>
+        <h2>How The Clinical Flow Operates</h2>
+        <p>A unified patient journey designed for clear role delegation between administrative, clinical, and financial duties.</p>
+      </div>
+
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-number">1</div>
+          <h5 style="font-weight: 700; margin-bottom: 0.25rem;">Patient Intake</h5>
+          <span style="font-size: 0.785rem; color: #6366f1; font-weight: 600;">Receptionist / Admin</span>
+          <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Intake registration generating sequential <code>PAT-XXXX</code> identifier &amp; emergency contact.</p>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">2</div>
+          <h5 style="font-weight: 700; margin-bottom: 0.25rem;">Slot Scheduling</h5>
+          <span style="font-size: 0.785rem; color: #6366f1; font-weight: 600;">Receptionist / Admin</span>
+          <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Doctor schedule validation with interval conflict detection (Double-booking lock).</p>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">3</div>
+          <h5 style="font-weight: 700; margin-bottom: 0.25rem;">Clinical Encounter</h5>
+          <span style="font-size: 0.785rem; color: #10b981; font-weight: 600;">Doctor Exclusive</span>
+          <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Doctor records presenting symptoms, diagnosis, and notes. Appointment marks <code>COMPLETED</code>.</p>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">4</div>
+          <h5 style="font-weight: 700; margin-bottom: 0.25rem;">Medical Rx</h5>
+          <span style="font-size: 0.785rem; color: #10b981; font-weight: 600;">Doctor Exclusive</span>
+          <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Issue Section 21 medication orders with dosage, regimen, duration, and instructions.</p>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">5</div>
+          <h5 style="font-weight: 700; margin-bottom: 0.25rem;">Cashier &amp; Billing</h5>
+          <span style="font-size: 0.785rem; color: #6366f1; font-weight: 600;">Receptionist / Admin</span>
+          <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Generate tax invoice receipt, collect cash/UPI/card payments, and print checkout Rx.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       INTERACTIVE ROLE-BASED ACCESS EXPLORER
+       ========================================================================== -->
+  <section class="section" id="rbac-explorer">
+    <div class="container">
+      <div class="section-header">
+        <span class="tag">Role Separation of Concerns</span>
+        <h2>Explore By Clinical Role</h2>
+        <p>Select any role below to review their exact authorized capabilities, system views, and hard operational boundaries.</p>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="role-tabs">
+        <button class="role-tab-btn active" data-role="doctor" onclick="switchRole('doctor')">
+          <i class="bi bi-heart-pulse-fill text-success"></i> Doctor (Physician)
+        </button>
+        <button class="role-tab-btn" data-role="receptionist" onclick="switchRole('receptionist')">
+          <i class="bi bi-person-workspace text-primary"></i> Receptionist (Front Desk)
+        </button>
+        <button class="role-tab-btn" data-role="admin" onclick="switchRole('admin')">
+          <i class="bi bi-shield-lock-fill text-info"></i> Clinic Administrator
+        </button>
+      </div>
+
+      <!-- DOCTOR PANEL -->
+      <div class="role-panel active" id="panel-doctor">
+        <div class="role-panel-header">
+          <div class="role-info">
+            <h3 style="color: #10b981;">
+              <i class="bi bi-heart-pulse"></i> Doctor / Clinical Specialist
+            </h3>
+            <p>Empowered to manage patient queues, document diagnoses, prescribe pharmacotherapy, and maintain personal shift rosters.</p>
+          </div>
+          <div class="role-credentials-box">
+            <div class="cred-title">Sample Doctor Login</div>
+            <div class="cred-row">
+              <span>Email:</span>
+              <span class="cred-code">dr.rahul@clinic.com</span>
+            </div>
+            <div class="cred-row">
+              <span>Password:</span>
+              <span class="cred-code">Doctor@123</span>
+            </div>
+            <button class="copy-btn mt-2" onclick="copyCreds('dr.rahul@clinic.com', 'Doctor@123', this)">
+              <i class="bi bi-clipboard"></i> Copy Credentials
+            </button>
+          </div>
+        </div>
+
+        <h4 style="font-weight: 700; margin-bottom: 1.25rem;">Authorized Clinical Capabilities</h4>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #dcfce7; color: #15803d;">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+            <h4>My Appointments &amp; Queue</h4>
+            <p>Automatically scoped to the doctor's own patient queue. Displays today's attendance, patient waiting status, and visit notes.</p>
+            <span class="feature-badge" style="background: #dcfce7; color: #15803d;">Personal Queue Only</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #e0f2fe; color: #0369a1;">
+              <i class="bi bi-journal-medical"></i>
+            </div>
+            <h4>Clinical Consultations &amp; SOAP</h4>
+            <p>Document presenting complaints, examination findings, differential diagnosis, and follow-up schedules. Automatically completes appointment.</p>
+            <span class="feature-badge" style="background: #e0f2fe; color: #0369a1;">Clinical Core</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #fef3c7; color: #b45309;">
+              <i class="bi bi-capsule"></i>
+            </div>
+            <h4>Medical Prescriptions (Rx)</h4>
+            <p>Issue Section 21 pharmaceutical orders with drug name, dosage, route, administration frequency, duration, and patient dietary instructions.</p>
+            <span class="feature-badge" style="background: #fef3c7; color: #b45309;">Prescription Authority</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #ede9fe; color: #6d28d9;">
+              <i class="bi bi-calendar-range"></i>
+            </div>
+            <h4>Personal Shift &amp; Timings Roster</h4>
+            <p>Configure weekly operating days, morning/evening clinic hours, and slot durations (15m, 30m, 45m). Affects live booking availability.</p>
+            <span class="feature-badge" style="background: #ede9fe; color: #6d28d9;">Shift Control</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #f1f5f9; color: #334155;">
+              <i class="bi bi-folder2-open"></i>
+            </div>
+            <h4>Patient Clinical Dossiers</h4>
+            <p>Inspect deep medical history: baseline clinical notes, blood group, age, emergency contact, prior appointments, and historical prescriptions.</p>
+            <span class="feature-badge" style="background: #f1f5f9; color: #334155;">Read-Only Dossier</span>
+          </div>
+        </div>
+
+        <div class="boundary-guard">
+          <i class="bi bi-shield-x"></i>
+          <div>
+            <h5>Doctor Operational Boundary Enforced</h5>
+            <p>
+              Doctors <strong>cannot</strong> generate commercial invoices, apply tax rates, collect cashier receipts, or access financial ledgers (blocked by frontend route guards &amp; backend <code>403 Forbidden</code>). 
+              They also cannot register or deactivate patient records.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECEPTIONIST PANEL -->
+      <div class="role-panel" id="panel-receptionist">
+        <div class="role-panel-header">
+          <div class="role-info">
+            <h3 style="color: #6366f1;">
+              <i class="bi bi-person-workspace"></i> Front-Desk Receptionist
+            </h3>
+            <p>Responsible for patient intake, clinic-wide appointment booking, multi-doctor availability checks, and cashiering.</p>
+          </div>
+          <div class="role-credentials-box">
+            <div class="cred-title">Sample Receptionist Login</div>
+            <div class="cred-row">
+              <span>Email:</span>
+              <span class="cred-code">receptionist@clinic.com</span>
+            </div>
+            <div class="cred-row">
+              <span>Password:</span>
+              <span class="cred-code">Recep@123</span>
+            </div>
+            <button class="copy-btn mt-2" onclick="copyCreds('receptionist@clinic.com', 'Recep@123', this)">
+              <i class="bi bi-clipboard"></i> Copy Credentials
+            </button>
+          </div>
+        </div>
+
+        <h4 style="font-weight: 700; margin-bottom: 1.25rem;">Authorized Front-Desk Capabilities</h4>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #e0e7ff; color: #4338ca;">
+              <i class="bi bi-person-plus"></i>
+            </div>
+            <h4>Patient Intake &amp; Registration</h4>
+            <p>Register new patients, input demographic details, blood group, emergency contact relations, and update contact information.</p>
+            <span class="feature-badge" style="background: #e0e7ff; color: #4338ca;">Patient Master</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #dbeafe; color: #1d4ed8;">
+              <i class="bi bi-calendar-plus"></i>
+            </div>
+            <h4>Appointment Booking Engine</h4>
+            <p>Book visits with interval overlap conflict detection. Filter by doctor specialty, pick available dynamic slots, and record visit reason.</p>
+            <span class="feature-badge" style="background: #dbeafe; color: #1d4ed8;">Booking Core</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #ccfbf1; color: #0f766e;">
+              <i class="bi bi-calendar-week"></i>
+            </div>
+            <h4>Doctor Shift Visualizer</h4>
+            <p>Lookup any specialist's weekly schedule to inform patients about clinic operating hours and simulate live available time-slots.</p>
+            <span class="feature-badge" style="background: #ccfbf1; color: #0f766e;">Read-Only Shifts</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #fef3c7; color: #b45309;">
+              <i class="bi bi-receipt-cutoff"></i>
+            </div>
+            <h4>Billing, Invoices &amp; Cashiering</h4>
+            <p>Generate tax invoices with custom line items, apply discounts and taxes, record payments (Cash, Card, UPI), and track outstanding balances.</p>
+            <span class="feature-badge" style="background: #fef3c7; color: #b45309;">Cashier Desk</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #e0f2fe; color: #0284c7;">
+              <i class="bi bi-printer"></i>
+            </div>
+            <h4>Receipt &amp; Rx Printing</h4>
+            <p>Print formal tax invoices with clinic header for patients, and print issued Section 21 medical prescriptions at departure checkout.</p>
+            <span class="feature-badge" style="background: #e0f2fe; color: #0284c7;">Print Operations</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #fee2e2; color: #b91c1c;">
+              <i class="bi bi-arrow-repeat"></i>
+            </div>
+            <h4>Reschedule &amp; Cancel</h4>
+            <p>Reschedule patient visits to newly available interval slots or cancel appointments with reason recording upon patient request.</p>
+            <span class="feature-badge" style="background: #fee2e2; color: #b91c1c;">Lifecycle Manager</span>
+          </div>
+        </div>
+
+        <div class="boundary-guard">
+          <i class="bi bi-shield-x"></i>
+          <div>
+            <h5>Receptionist Operational Boundary Enforced</h5>
+            <p>
+              Receptionists <strong>cannot</strong> record medical diagnoses, write clinical examination notes, issue medication prescriptions, 
+              or alter doctor shift schedules (blocked by route-level redirect &amp; backend authorization).
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN PANEL -->
+      <div class="role-panel" id="panel-admin">
+        <div class="role-panel-header">
+          <div class="role-info">
+            <h3 style="color: #0284c7;">
+              <i class="bi bi-shield-lock"></i> System Administrator
+            </h3>
+            <p>Full governance authority over clinical settings, doctor profiles, financial analytics, and patient records.</p>
+          </div>
+          <div class="role-credentials-box">
+            <div class="cred-title">Sample Admin Login</div>
+            <div class="cred-row">
+              <span>Email:</span>
+              <span class="cred-code">admin@clinic.com</span>
+            </div>
+            <div class="cred-row">
+              <span>Password:</span>
+              <span class="cred-code">Admin@123</span>
+            </div>
+            <button class="copy-btn mt-2" onclick="copyCreds('admin@clinic.com', 'Admin@123', this)">
+              <i class="bi bi-clipboard"></i> Copy Credentials
+            </button>
+          </div>
+        </div>
+
+        <h4 style="font-weight: 700; margin-bottom: 1.25rem;">Authorized Administrator Capabilities</h4>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #e0f2fe; color: #0284c7;">
+              <i class="bi bi-speedometer2"></i>
+            </div>
+            <h4>Executive Analytics Dashboard</h4>
+            <p>Clinic-wide metrics: Total registered patients, today's appointments, collected revenue, outstanding dues, and lifecycle progress bar.</p>
+            <span class="feature-badge" style="background: #e0f2fe; color: #0284c7;">Executive View</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #dcfce7; color: #15803d;">
+              <i class="bi bi-person-badge"></i>
+            </div>
+            <h4>Doctor Specialist Directory</h4>
+            <p>Add new doctor specialists, configure qualifications, medical license numbers, consultation fees, and toggle active/inactive status.</p>
+            <span class="feature-badge" style="background: #dcfce7; color: #15803d;">Doctor Master</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #ede9fe; color: #6d28d9;">
+              <i class="bi bi-calendar-range"></i>
+            </div>
+            <h4>Multi-Doctor Shift Management</h4>
+            <p>Define and modify weekly operating shifts across all clinic doctors, configure slot durations, and manage holiday schedules.</p>
+            <span class="feature-badge" style="background: #ede9fe; color: #6d28d9;">All Specialists</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #fef3c7; color: #b45309;">
+              <i class="bi bi-cash-stack"></i>
+            </div>
+            <h4>Complete Financial Audit Ledger</h4>
+            <p>Monitor all clinic invoices, verify payment receipts, review collected vs. pending balances, and audit cashier operations.</p>
+            <span class="feature-badge" style="background: #fef3c7; color: #b45309;">Financial Ledger</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #fee2e2; color: #b91c1c;">
+              <i class="bi bi-person-x"></i>
+            </div>
+            <h4>Patient Master Governance</h4>
+            <p>Deactivate/activate patient dossiers, override scheduling conflicts, and review cross-specialist medical records.</p>
+            <span class="feature-badge" style="background: #fee2e2; color: #b91c1c;">Master Governance</span>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper" style="background: #f1f5f9; color: #475569;">
+              <i class="bi bi-diagram-3"></i>
+            </div>
+            <h4>System Health &amp; Diagnostics</h4>
+            <p>Monitor MongoDB Atlas connection status, API round-trip latency, uptime, and database index configurations.</p>
+            <span class="feature-badge" style="background: #f1f5f9; color: #475569;">DevOps &amp; Infra</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       RBAC PERMISSION COMPARISON MATRIX
+       ========================================================================== -->
+  <section class="section" id="rbac-matrix" style="background: #ffffff; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+    <div class="container">
+      <div class="section-header">
+        <span class="tag">Security Enforcement</span>
+        <h2>Role-Based Permission Matrix</h2>
+        <p>Comprehensive comparison of route access and capability boundaries enforced across client and server.</p>
+      </div>
+
+      <div class="matrix-card">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>Functional Module</th>
+              <th>Administrator</th>
+              <th>Doctor</th>
+              <th>Receptionist</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>System Dashboard</strong>
+                <div style="font-size: 0.8rem; color: #64748b;">Route: <code>/dashboard</code></div>
+              </td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Full Revenue &amp; KPIs</span></td>
+              <td><span class="role-badge badge-scoped"><i class="bi bi-person-check-fill"></i> Scoped Queue &amp; Consults</span></td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Clinic Visits &amp; Billing</span></td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Doctor Specialist Directory</strong>
+                <div style="font-size: 0.8rem; color: #64748b;">Route: <code>/doctors</code></div>
+              </td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Create, Edit, Toggle</span></td>
+              <td><span class="role-badge badge-blocked"><i class="bi bi-x-circle-fill"></i> Hidden in Navbar</span></td>
+              <td><span class="role-badge badge-view"><i class="bi bi-eye-fill"></i> Read-Only Directory</span></td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Doctor Weekly Shifts &amp; Timings</strong>
+                <div style="font-size: 0.8rem; color: #64748b;">Route: <code>/schedules</code></div>
+              </td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Manage Any Doctor</span></td>
+              <td><span class="role-badge badge-scoped"><i class="bi bi-person-check-fill"></i> Manage Own Shifts</span></td>
+              <td><span class="role-badge badge-view"><i class="bi bi-eye-fill"></i> View For Booking Only</span></td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Patient Registration &amp; Intake</strong>
+                <div style="font-size: 0.8rem; color: #64748b;">Route: <code>/patients</code></div>
+              </td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Register &amp; Deactivate</span></td>
+              <td><span class="role-badge badge-view"><i class="bi bi-eye-fill"></i> Read-Only Dossiers</span></td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Register &amp; Edit Intake</span></td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Appointment Booking Engine</strong>
+                <div style="font-size: 0.8rem; color: #64748b;">Route: <code>/appointments</code></div>
+              </td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Full Management</span></td>
+              <td><span class="role-badge badge-scoped"><i class="bi bi-person-check-fill"></i> Personal Queue</span></td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Full Booking Engine</span></td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Appointment Cancellations</strong>
+                <div style="font-size: 0.8rem; color: #64748b;">Action in <code>/appointments</code></div>
+              </td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Authorized</span></td>
+              <td><span class="role-badge badge-blocked"><i class="bi bi-x-circle-fill"></i> 403 Forbidden</span></td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Authorized</span></td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Clinical Consultations &amp; SOAP Notes</strong>
+                <div style="font-size: 0.8rem; color: #64748b;">Route: <code>/consultations</code></div>
+              </td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Authorized</span></td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Record Diagnoses</span></td>
+              <td><span class="role-badge badge-blocked"><i class="bi bi-x-circle-fill"></i> Blocked (Redirects)</span></td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Medical Prescriptions (Rx)</strong>
+                <div style="font-size: 0.8rem; color: #64748b;">Route: <code>/prescriptions</code></div>
+              </td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Full Access</span></td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Issue &amp; Prescribe</span></td>
+              <td><span class="role-badge badge-view"><i class="bi bi-printer-fill"></i> View &amp; Print Checkout</span></td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Billing, Invoices &amp; Cashiering</strong>
+                <div style="font-size: 0.8rem; color: #64748b;">Route: <code>/invoices</code></div>
+              </td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Full Audit &amp; Create</span></td>
+              <td><span class="role-badge badge-blocked"><i class="bi bi-x-circle-fill"></i> Blocked (Redirects)</span></td>
+              <td><span class="role-badge badge-full"><i class="bi bi-check-circle-fill"></i> Issue Invoices &amp; Pay</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       ALL DOCTOR & STAFF CREDENTIALS
+       ========================================================================== -->
+  <section class="section" id="credentials">
+    <div class="container">
+      <div class="section-header">
+        <span class="tag">Live Testing Vault</span>
+        <h2>Doctor &amp; Staff Login Credentials</h2>
+        <p>Test individual doctor clinical specialties or switch to front-desk and administrator roles directly on the live deployment.</p>
+      </div>
+
+      <!-- General Accounts -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+        <div class="doc-card" style="border-left: 4px solid #0284c7;">
+          <div>
+            <div class="doc-header">
+              <div class="doc-avatar" style="background: #e0f2fe; color: #0284c7;"><i class="bi bi-shield-lock"></i></div>
+              <div>
+                <h4 style="font-weight: 700; margin-bottom: 0.1rem;">System Administrator</h4>
+                <span style="font-size: 0.8rem; color: #0284c7; font-weight: 600;">Role: ADMIN</span>
+              </div>
+            </div>
+            <div style="font-size: 0.85rem; margin-bottom: 0.25rem;">Email: <strong class="font-monospace">admin@clinic.com</strong></div>
+            <div style="font-size: 0.85rem; margin-bottom: 0.85rem;">Password: <strong class="font-monospace">Admin@123</strong></div>
+          </div>
+          <button class="copy-btn" onclick="copyCreds('admin@clinic.com', 'Admin@123', this)">
+            <i class="bi bi-clipboard"></i> Copy Credentials
+          </button>
+        </div>
+
+        <div class="doc-card" style="border-left: 4px solid #6366f1;">
+          <div>
+            <div class="doc-header">
+              <div class="doc-avatar" style="background: #ede9fe; color: #6366f1;"><i class="bi bi-person-workspace"></i></div>
+              <div>
+                <h4 style="font-weight: 700; margin-bottom: 0.1rem;">Ritu Verma</h4>
+                <span style="font-size: 0.8rem; color: #6366f1; font-weight: 600;">Role: RECEPTIONIST</span>
+              </div>
+            </div>
+            <div style="font-size: 0.85rem; margin-bottom: 0.25rem;">Email: <strong class="font-monospace">receptionist@clinic.com</strong></div>
+            <div style="font-size: 0.85rem; margin-bottom: 0.85rem;">Password: <strong class="font-monospace">Recep@123</strong></div>
+          </div>
+          <button class="copy-btn" onclick="copyCreds('receptionist@clinic.com', 'Recep@123', this)">
+            <i class="bi bi-clipboard"></i> Copy Credentials
+          </button>
+        </div>
+      </div>
+
+      <!-- All 5 Doctors -->
+      <h4 style="font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="bi bi-heart-pulse-fill text-success"></i> Registered Medical Specialists (Password: <code>Doctor@123</code>)
+      </h4>
+
+      <div class="doctors-grid">
+        <!-- Doctor 1 -->
+        <div class="doc-card">
+          <div>
+            <div class="doc-header">
+              <div class="doc-avatar">RS</div>
+              <div>
+                <h4 style="font-weight: 700; margin-bottom: 0.1rem;">Dr. Rahul Sharma</h4>
+                <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Cardiology &bull; ₹800 Fee</span>
+              </div>
+            </div>
+            <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.35rem;">License: MCI-CARD-2010-001</div>
+            <div style="font-size: 0.85rem; margin-bottom: 0.85rem;">Email: <strong class="font-monospace">dr.rahul@clinic.com</strong></div>
+          </div>
+          <button class="copy-btn" onclick="copyCreds('dr.rahul@clinic.com', 'Doctor@123', this)">
+            <i class="bi bi-clipboard"></i> Copy Credentials
+          </button>
+        </div>
+
+        <!-- Doctor 2 -->
+        <div class="doc-card">
+          <div>
+            <div class="doc-header">
+              <div class="doc-avatar">PP</div>
+              <div>
+                <h4 style="font-weight: 700; margin-bottom: 0.1rem;">Dr. Priya Patel</h4>
+                <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Dermatology &bull; ₹600 Fee</span>
+              </div>
+            </div>
+            <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.35rem;">License: MCI-DERM-2015-042</div>
+            <div style="font-size: 0.85rem; margin-bottom: 0.85rem;">Email: <strong class="font-monospace">dr.priya@clinic.com</strong></div>
+          </div>
+          <button class="copy-btn" onclick="copyCreds('dr.priya@clinic.com', 'Doctor@123', this)">
+            <i class="bi bi-clipboard"></i> Copy Credentials
+          </button>
+        </div>
+
+        <!-- Doctor 3 -->
+        <div class="doc-card">
+          <div>
+            <div class="doc-header">
+              <div class="doc-avatar">AK</div>
+              <div>
+                <h4 style="font-weight: 700; margin-bottom: 0.1rem;">Dr. Arun Kumar</h4>
+                <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Orthopedics &bull; ₹900 Fee</span>
+              </div>
+            </div>
+            <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.35rem;">License: MCI-ORTH-2008-119</div>
+            <div style="font-size: 0.85rem; margin-bottom: 0.85rem;">Email: <strong class="font-monospace">dr.arun@clinic.com</strong></div>
+          </div>
+          <button class="copy-btn" onclick="copyCreds('dr.arun@clinic.com', 'Doctor@123', this)">
+            <i class="bi bi-clipboard"></i> Copy Credentials
+          </button>
+        </div>
+
+        <!-- Doctor 4 -->
+        <div class="doc-card">
+          <div>
+            <div class="doc-header">
+              <div class="doc-avatar">AD</div>
+              <div>
+                <h4 style="font-weight: 700; margin-bottom: 0.1rem;">Dr. Anita Desai</h4>
+                <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">General Medicine &bull; ₹500 Fee</span>
+              </div>
+            </div>
+            <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.35rem;">License: MCI-GENM-2013-288</div>
+            <div style="font-size: 0.85rem; margin-bottom: 0.85rem;">Email: <strong class="font-monospace">dr.anita@clinic.com</strong></div>
+          </div>
+          <button class="copy-btn" onclick="copyCreds('dr.anita@clinic.com', 'Doctor@123', this)">
+            <i class="bi bi-clipboard"></i> Copy Credentials
+          </button>
+        </div>
+
+        <!-- Doctor 5 -->
+        <div class="doc-card">
+          <div>
+            <div class="doc-header">
+              <div class="doc-avatar">VR</div>
+              <div>
+                <h4 style="font-weight: 700; margin-bottom: 0.1rem;">Dr. Vikram Rao</h4>
+                <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Neurology &bull; ₹1,000 Fee</span>
+              </div>
+            </div>
+            <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.35rem;">License: MCI-NEUR-2009-077</div>
+            <div style="font-size: 0.85rem; margin-bottom: 0.85rem;">Email: <strong class="font-monospace">dr.vikram@clinic.com</strong></div>
+          </div>
+          <button class="copy-btn" onclick="copyCreds('dr.vikram@clinic.com', 'Doctor@123', this)">
+            <i class="bi bi-clipboard"></i> Copy Credentials
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       TECHNICAL FOUNDATION & DEFENSE
+       ========================================================================== -->
+  <section class="section" style="background: #f8fafc; border-top: 1px solid #e2e8f0;">
+    <div class="container">
+      <div class="section-header">
+        <span class="tag">Engineering Rigor</span>
+        <h2>Technical Architecture &amp; Rationale</h2>
+        <p>Core engineering paradigms implemented throughout the full-stack codebase.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper" style="background: #e0f2fe; color: #0284c7;">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <h4>Interval Overlap Collision Detection</h4>
+          <p>Double booking is prevented on the database level via temporal collision checking: <code>newStart &lt; existingEnd &amp;&amp; newEnd &gt; existingStart</code> evaluated inside <code>appointmentService.js</code>.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrapper" style="background: #dcfce7; color: #15803d;">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h4>JWT &amp; Middleware RBAC Guards</h4>
+          <p>Decoupled authorization: <code>authenticateUser</code> verifies bearer JWT signatures, while <code>authorizeRoles(...)</code> enforces fine-grained permission arrays per API endpoint.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrapper" style="background: #ede9fe; color: #6d28d9;">
+            <i class="bi bi-layers"></i>
+          </div>
+          <h4>Layered Separation of Concerns</h4>
+          <p>Clean architectural tiering: <code>Routes -> Middleware -> Controllers -> Services -> Mongoose Models</code>. Business rules remain completely isolated from transport protocols.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <p style="margin-bottom: 0.5rem; font-weight: 600; color: #ffffff;">
+        Clinic Appointment Manager &bull; Full-Stack Healthcare Platform
+      </p>
+      <p style="font-size: 0.8rem; color: #64748b;">
+        Engineered with React 18, Vite, Node.js, Express, MongoDB Atlas &amp; Bootstrap 5.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Script for Interactive Tabs and Credential Copy -->
+  <script>
+    function switchRole(role) {
+      // Update buttons
+      document.querySelectorAll('.role-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-role') === role);
+      });
+
+      // Update panels
+      document.querySelectorAll('.role-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === 'panel-' + role);
+      });
+    }
+
+    function copyCreds(email, password, btnElement) {
+      const text = `Email: ${email}\nPassword: ${password}`;
+      navigator.clipboard.writeText(text).then(() => {
+        const originalHtml = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
+        btnElement.classList.add('copied');
+        setTimeout(() => {
+          btnElement.innerHTML = originalHtml;
+          btnElement.classList.remove('copied');
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
