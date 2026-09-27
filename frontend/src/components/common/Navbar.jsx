@@ -101,7 +101,8 @@ const Navbar = () => {
                   onClick={closeNav}
                   className="nav-item-custom"
                 >
-                  <i className="bi bi-calendar-check me-1 text-warning"></i> Appointments
+                  <i className="bi bi-calendar-check me-1 text-warning"></i>
+                  {user?.role === 'DOCTOR' ? 'My Appointments' : 'Appointments'}
                 </Nav.Link>
 
                 <Nav.Link
@@ -110,57 +111,83 @@ const Navbar = () => {
                   onClick={closeNav}
                   className="nav-item-custom"
                 >
-                  <i className="bi bi-people me-1 text-info"></i> Patients
+                  <i className="bi bi-people me-1 text-info"></i>
+                  {user?.role === 'DOCTOR' ? 'Patient Dossiers' : 'Patients'}
                 </Nav.Link>
 
-                {/* Doctors & Schedules Dropdown */}
-                <NavDropdown
-                  title={
-                    <span className={isDoctorActive ? 'fw-bold text-primary' : ''}>
-                      <i className="bi bi-person-badge me-1 text-success"></i> Doctors
-                    </span>
-                  }
-                  id="doctors-nav-dropdown"
-                  className="nav-dropdown-custom"
-                >
-                  <NavDropdown.Item as={NavLink} to="/doctors" onClick={closeNav}>
-                    <i className="bi bi-person-lines-fill me-2 text-primary"></i>
-                    Specialist Directory
-                  </NavDropdown.Item>
-                  <NavDropdown.Item as={NavLink} to="/schedules" onClick={closeNav}>
-                    <i className="bi bi-calendar-range me-2 text-success"></i>
-                    Weekly Schedules & Rosters
-                  </NavDropdown.Item>
-                </NavDropdown>
+                {/* Doctor Schedules or Specialist Directory */}
+                {user?.role === 'DOCTOR' ? (
+                  <Nav.Link
+                    as={NavLink}
+                    to="/schedules"
+                    onClick={closeNav}
+                    className="nav-item-custom"
+                  >
+                    <i className="bi bi-calendar-range me-1 text-success"></i> My Schedules
+                  </Nav.Link>
+                ) : (
+                  <NavDropdown
+                    title={
+                      <span className={isDoctorActive ? 'fw-bold text-primary' : ''}>
+                        <i className="bi bi-person-badge me-1 text-success"></i> Doctors
+                      </span>
+                    }
+                    id="doctors-nav-dropdown"
+                    className="nav-dropdown-custom"
+                  >
+                    <NavDropdown.Item as={NavLink} to="/doctors" onClick={closeNav}>
+                      <i className="bi bi-person-lines-fill me-2 text-primary"></i>
+                      Specialist Directory
+                    </NavDropdown.Item>
+                    <NavDropdown.Item as={NavLink} to="/schedules" onClick={closeNav}>
+                      <i className="bi bi-calendar-range me-2 text-success"></i>
+                      Weekly Schedules & Rosters
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                )}
 
-                {/* Clinical Consultations & Prescriptions Dropdown */}
-                <NavDropdown
-                  title={
-                    <span className={isClinicalActive ? 'fw-bold text-primary' : ''}>
-                      <i className="bi bi-clipboard2-pulse me-1 text-danger"></i> Clinical
-                    </span>
-                  }
-                  id="clinical-nav-dropdown"
-                  className="nav-dropdown-custom"
-                >
-                  <NavDropdown.Item as={NavLink} to="/consultations" onClick={closeNav}>
-                    <i className="bi bi-journal-medical me-2 text-danger"></i>
-                    Consultations & Diagnosis
-                  </NavDropdown.Item>
-                  <NavDropdown.Item as={NavLink} to="/prescriptions" onClick={closeNav}>
-                    <i className="bi bi-capsule me-2 text-info"></i>
-                    Prescriptions (Rx)
-                  </NavDropdown.Item>
-                </NavDropdown>
+                {/* Clinical Consultations & Prescriptions */}
+                {user?.role === 'RECEPTIONIST' ? (
+                  <Nav.Link
+                    as={NavLink}
+                    to="/prescriptions"
+                    onClick={closeNav}
+                    className="nav-item-custom"
+                  >
+                    <i className="bi bi-capsule me-1 text-info"></i> Prescriptions (Rx)
+                  </Nav.Link>
+                ) : (
+                  <NavDropdown
+                    title={
+                      <span className={isClinicalActive ? 'fw-bold text-primary' : ''}>
+                        <i className="bi bi-clipboard2-pulse me-1 text-danger"></i> Clinical
+                      </span>
+                    }
+                    id="clinical-nav-dropdown"
+                    className="nav-dropdown-custom"
+                  >
+                    <NavDropdown.Item as={NavLink} to="/consultations" onClick={closeNav}>
+                      <i className="bi bi-journal-medical me-2 text-danger"></i>
+                      Consultations & Diagnosis
+                    </NavDropdown.Item>
+                    <NavDropdown.Item as={NavLink} to="/prescriptions" onClick={closeNav}>
+                      <i className="bi bi-capsule me-2 text-info"></i>
+                      Prescriptions (Rx)
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                )}
 
-                <Nav.Link
-                  as={NavLink}
-                  to="/invoices"
-                  onClick={closeNav}
-                  className="nav-item-custom"
-                >
-                  <i className="bi bi-receipt-cutoff me-1 text-secondary"></i> Billing
-                </Nav.Link>
+                {/* Billing: Strictly for Admin & Receptionist (Cashier Desk) */}
+                {user?.role !== 'DOCTOR' && (
+                  <Nav.Link
+                    as={NavLink}
+                    to="/invoices"
+                    onClick={closeNav}
+                    className="nav-item-custom"
+                  >
+                    <i className="bi bi-receipt-cutoff me-1 text-secondary"></i> Billing & Payments
+                  </Nav.Link>
+                )}
               </>
             ) : null}
 

@@ -27,6 +27,9 @@ const DAYS_OF_WEEK = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'S
 const DoctorSchedulesPage = () => {
   const { user, doctor: currentDoctor } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
+  const isDoctor = user?.role === 'DOCTOR';
+  const isReceptionist = user?.role === 'RECEPTIONIST';
+  const canManageSchedule = isAdmin || (isDoctor && (!selectedDoctorId || selectedDoctorId === currentDoctor?._id));
 
   // Selected Doctor
   const [doctorsList, setDoctorsList] = useState([]);
@@ -178,22 +181,29 @@ const DoctorSchedulesPage = () => {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
           <h2 className="fw-bold mb-1 d-flex align-items-center gap-2">
-            <i className="bi bi-calendar-range text-primary"></i> Doctor Schedules & Timings
+            <i className="bi bi-calendar-range text-primary"></i>
+            {isDoctor ? 'My Clinical Schedules & Timings' : 'Doctor Schedules & Timings'}
           </h2>
-          <p className="text-muted mb-0">Configure clinical operating hours and test dynamic slot computation.</p>
+          <p className="text-muted mb-0">
+            {isDoctor
+              ? 'Configure your weekly consultation operating hours and slot capacity.'
+              : 'Review clinical operating hours and test dynamic slot computation across specialists.'}
+          </p>
         </div>
-        <div>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setFormError('');
-              setShowModal(true);
-            }}
-            className="d-flex align-items-center gap-2"
-          >
-            <i className="bi bi-plus-circle"></i> Add Schedule Block
-          </Button>
-        </div>
+        {canManageSchedule && (
+          <div>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setFormError('');
+                setShowModal(true);
+              }}
+              className="d-flex align-items-center gap-2"
+            >
+              <i className="bi bi-plus-circle"></i> Add Schedule Block
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Notifications */}
@@ -209,14 +219,35 @@ const DoctorSchedulesPage = () => {
         </Alert>
       )}
 
-      {/* Doctor Selector for Admins */}
-      {isAdmin && doctorsList.length > 0 && (
+      {/* Doctor Info Banner for Doctors */}
+      {isDoctor && (
+        <Card className="clinic-card border-0 shadow-sm mb-4 border-start border-4 border-primary">
+          <Card.Body className="p-3 d-flex justify-content-between align-items-center">
+            <div>
+              <div className="fw-bold text-primary">
+                <i className="bi bi-person-badge me-2"></i>
+                Dr. {user?.name} &bull; {currentDoctor?.specialization || 'Medical Specialist'}
+              </div>
+              <div className="small text-muted">
+                Consultation Fee: ₹{currentDoctor?.consultationFee || '500'} &bull; Managing your personal active appointment shifts.
+              </div>
+            </div>
+            <Badge bg="primary-subtle" text="primary" className="border border-primary-subtle px-3 py-2">
+              My Schedule Roster
+            </Badge>
+          </Card.Body>
+        </Card>
+      )}
+
+      {/* Doctor Selector for Admins and Receptionists */}
+      {!isDoctor && doctorsList.length > 0 && (
         <Card className="clinic-card border-0 shadow-sm mb-4">
           <Card.Body className="p-3">
             <Row className="align-items-center">
               <Col md={3}>
                 <Form.Label className="small fw-bold text-muted mb-0">
-                  <i className="bi bi-person-badge text-primary me-1"></i> SELECT DOCTOR TO MANAGE:
+                  <i className="bi bi-person-badge text-primary me-1"></i>
+                  {isAdmin ? 'SELECT DOCTOR TO MANAGE:' : 'SELECT DOCTOR TO VIEW SCHEDULE:'}
                 </Form.Label>
               </Col>
               <Col md={6}>
@@ -289,15 +320,17 @@ const DoctorSchedulesPage = () => {
                                 <Badge bg="light" text="dark" className="border">
                                   {sched.slotDuration}m
                                 </Badge>
-                                <Button
-                                  variant="link"
-                                  size="sm"
-                                  className="text-danger p-0 ms-1"
-                                  title="Delete Block"
-                                  onClick={() => handleDeleteSchedule(sched._id, sched.dayOfWeek)}
-                                >
-                                  <i className="bi bi-trash"></i>
-                                </Button>
+                                {canManageSchedule && (
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="text-danger p-0 ms-1"
+                                    title="Delete Block"
+                                    onClick={() => handleDeleteSchedule(sched._id, sched.dayOfWeek)}
+                                  >
+                                    <i className="bi bi-trash"></i>
+                                  </Button>
+                                )}
                               </div>
                             ))}
                           </div>

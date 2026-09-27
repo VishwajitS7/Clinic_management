@@ -193,32 +193,40 @@ const DashboardPage = () => {
 
           {/* Role Quick Links / Navigation Directory */}
           <h5 className="fw-bold mb-3 d-flex align-items-center gap-2">
-            <i className="bi bi-grid-fill text-primary"></i> Clinical Operations Directory
+            <i className="bi bi-grid-fill text-primary"></i> Operations & Clinical Directory
           </h5>
           <Row className="g-3 mb-4">
-            <Col xs={6} md={2}>
+            <Col xs={6} md={user?.role === 'ADMIN' ? 2 : user?.role === 'DOCTOR' ? 3 : 2}>
               <Card
                 as={Link}
                 to="/patients"
                 className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
               >
                 <i className="bi bi-people fs-2 text-primary mb-2"></i>
-                <h6 className="fw-bold mb-1 text-dark">Patients</h6>
-                <p className="text-muted small mb-0">Dossiers & History</p>
+                <h6 className="fw-bold mb-1 text-dark">
+                  {user?.role === 'DOCTOR' ? 'Patient Dossiers' : 'Patients'}
+                </h6>
+                <p className="text-muted small mb-0">
+                  {user?.role === 'DOCTOR' ? 'Clinical Histories' : 'Records & Intake'}
+                </p>
               </Card>
             </Col>
-            <Col xs={6} md={2}>
-              <Card
-                as={Link}
-                to="/doctors"
-                className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
-              >
-                <i className="bi bi-person-badge fs-2 text-success mb-2"></i>
-                <h6 className="fw-bold mb-1 text-dark">Doctors</h6>
-                <p className="text-muted small mb-0">Specialist Directory</p>
-              </Card>
-            </Col>
-            <Col xs={6} md={2}>
+
+            {user?.role !== 'DOCTOR' && (
+              <Col xs={6} md={2}>
+                <Card
+                  as={Link}
+                  to="/doctors"
+                  className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
+                >
+                  <i className="bi bi-person-badge fs-2 text-success mb-2"></i>
+                  <h6 className="fw-bold mb-1 text-dark">Doctors</h6>
+                  <p className="text-muted small mb-0">Specialist Directory</p>
+                </Card>
+              </Col>
+            )}
+
+            <Col xs={6} md={user?.role === 'ADMIN' ? 2 : user?.role === 'DOCTOR' ? 2 : 2}>
               <Card
                 as={Link}
                 to="/schedules"
@@ -226,10 +234,13 @@ const DashboardPage = () => {
               >
                 <i className="bi bi-calendar-range fs-2 text-info mb-2"></i>
                 <h6 className="fw-bold mb-1 text-dark">Schedules</h6>
-                <p className="text-muted small mb-0">Weekly Rosters</p>
+                <p className="text-muted small mb-0">
+                  {user?.role === 'DOCTOR' ? 'My Shifts & Timings' : 'Weekly Rosters'}
+                </p>
               </Card>
             </Col>
-            <Col xs={6} md={2}>
+
+            <Col xs={6} md={user?.role === 'ADMIN' ? 2 : user?.role === 'DOCTOR' ? 3 : 2}>
               <Card
                 as={Link}
                 to="/appointments"
@@ -237,41 +248,63 @@ const DashboardPage = () => {
               >
                 <i className="bi bi-calendar-check fs-2 text-warning mb-2"></i>
                 <h6 className="fw-bold mb-1 text-dark">Appointments</h6>
-                <p className="text-muted small mb-0">Conflict Engine</p>
+                <p className="text-muted small mb-0">
+                  {user?.role === 'DOCTOR' ? 'Patient Queue' : 'Booking Engine'}
+                </p>
               </Card>
             </Col>
-            <Col xs={6} md={2}>
+
+            {user?.role !== 'RECEPTIONIST' && (
+              <Col xs={6} md={user?.role === 'ADMIN' ? 2 : 2}>
+                <Card
+                  as={Link}
+                  to="/consultations"
+                  className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
+                >
+                  <i className="bi bi-clipboard2-pulse fs-2 text-danger mb-2"></i>
+                  <h6 className="fw-bold mb-1 text-dark">Consultations</h6>
+                  <p className="text-muted small mb-0">Diagnoses & Notes</p>
+                </Card>
+              </Col>
+            )}
+
+            <Col xs={6} md={user?.role === 'ADMIN' ? 2 : 2}>
               <Card
                 as={Link}
-                to="/consultations"
+                to="/prescriptions"
                 className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
               >
-                <i className="bi bi-clipboard2-pulse fs-2 text-danger mb-2"></i>
-                <h6 className="fw-bold mb-1 text-dark">Consultations</h6>
-                <p className="text-muted small mb-0">Diagnoses & Notes</p>
+                <i className="bi bi-capsule fs-2 text-info mb-2"></i>
+                <h6 className="fw-bold mb-1 text-dark">Prescriptions</h6>
+                <p className="text-muted small mb-0">
+                  {user?.role === 'DOCTOR' ? 'Write Medical Rx' : 'Print & Checkout'}
+                </p>
               </Card>
             </Col>
-            <Col xs={6} md={2}>
-              <Card
-                as={Link}
-                to="/invoices"
-                className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
-              >
-                <i className="bi bi-receipt-cutoff fs-2 text-secondary mb-2"></i>
-                <h6 className="fw-bold mb-1 text-dark">Billing</h6>
-                <p className="text-muted small mb-0">Invoices & Receipts</p>
-              </Card>
-            </Col>
+
+            {user?.role !== 'DOCTOR' && (
+              <Col xs={6} md={2}>
+                <Card
+                  as={Link}
+                  to="/invoices"
+                  className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
+                >
+                  <i className="bi bi-receipt-cutoff fs-2 text-secondary mb-2"></i>
+                  <h6 className="fw-bold mb-1 text-dark">Billing</h6>
+                  <p className="text-muted small mb-0">Cashier & Invoices</p>
+                </Card>
+              </Col>
+            )}
           </Row>
 
-          {/* Recent Operational Activity */}
+          {/* Recent Operational / Clinical Activity */}
           <Row className="g-4">
             <Col md={7}>
               <Card className="border-0 shadow-sm h-100">
                 <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                   <span className="fw-bold">
                     <i className="bi bi-clock-history me-2 text-primary"></i>
-                    Recent Appointments
+                    {user?.role === 'DOCTOR' ? 'My Upcoming Appointments' : 'Recent Appointments'}
                   </span>
                   <Button
                     as={Link}
@@ -316,53 +349,110 @@ const DashboardPage = () => {
               </Card>
             </Col>
 
+            {/* Doctor View: Recent Consultations; Admin/Receptionist View: Recent Invoices */}
             <Col md={5}>
               <Card className="border-0 shadow-sm h-100">
-                <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                  <span className="fw-bold">
-                    <i className="bi bi-cash-stack me-2 text-success"></i>
-                    Recent Invoices
-                  </span>
-                  <Button
-                    as={Link}
-                    to="/invoices"
-                    variant="outline-success"
-                    size="sm"
-                    className="small"
-                  >
-                    View All
-                  </Button>
-                </Card.Header>
-                <div className="table-responsive">
-                  <Table hover size="sm" align="middle" className="mb-0">
-                    <thead className="table-light small text-muted text-uppercase">
-                      <tr>
-                        <th>Invoice #</th>
-                        <th>Patient</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(stats?.recentInvoices || []).map((inv) => (
-                        <tr key={inv._id}>
-                          <td className="font-monospace text-primary fw-semibold small">
-                            {inv.invoiceNumber}
-                          </td>
-                          <td className="fw-medium small">
-                            {inv.patient?.name || (inv.patient?.firstName ? `${inv.patient.firstName} ${inv.patient.lastName || ''}`.trim() : 'N/A')}
-                          </td>
-                          <td className="font-monospace fw-bold small">
-                            ₹{inv.totalAmount?.toFixed(2)}
-                          </td>
-                          <td>
-                            <StatusBadge status={inv.status} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                </div>
+                {user?.role === 'DOCTOR' ? (
+                  <>
+                    <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                      <span className="fw-bold">
+                        <i className="bi bi-clipboard2-pulse me-2 text-danger"></i>
+                        Recent Consultations
+                      </span>
+                      <Button
+                        as={Link}
+                        to="/consultations"
+                        variant="outline-danger"
+                        size="sm"
+                        className="small"
+                      >
+                        View All
+                      </Button>
+                    </Card.Header>
+                    <div className="table-responsive">
+                      <Table hover size="sm" align="middle" className="mb-0">
+                        <thead className="table-light small text-muted text-uppercase">
+                          <tr>
+                            <th>Patient</th>
+                            <th>Diagnosis</th>
+                            <th>Encounter Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(stats?.recentConsultations || []).length === 0 ? (
+                            <tr>
+                              <td colSpan="3" className="text-center text-muted py-3 small">
+                                No consultations recorded yet.
+                              </td>
+                            </tr>
+                          ) : (
+                            (stats?.recentConsultations || []).map((c) => (
+                              <tr key={c._id}>
+                                <td className="fw-medium small">
+                                  {c.patient?.name || (c.patient?.firstName ? `${c.patient.firstName} ${c.patient.lastName || ''}`.trim() : 'Patient')}
+                                </td>
+                                <td className="small text-dark font-monospace text-truncate" style={{ maxWidth: '140px' }}>
+                                  {c.diagnosis}
+                                </td>
+                                <td className="small text-muted">
+                                  {new Date(c.createdAt).toLocaleDateString()}
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </Table>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                      <span className="fw-bold">
+                        <i className="bi bi-cash-stack me-2 text-success"></i>
+                        Recent Invoices
+                      </span>
+                      <Button
+                        as={Link}
+                        to="/invoices"
+                        variant="outline-success"
+                        size="sm"
+                        className="small"
+                      >
+                        View All
+                      </Button>
+                    </Card.Header>
+                    <div className="table-responsive">
+                      <Table hover size="sm" align="middle" className="mb-0">
+                        <thead className="table-light small text-muted text-uppercase">
+                          <tr>
+                            <th>Invoice #</th>
+                            <th>Patient</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(stats?.recentInvoices || []).map((inv) => (
+                            <tr key={inv._id}>
+                              <td className="font-monospace text-primary fw-semibold small">
+                                {inv.invoiceNumber}
+                              </td>
+                              <td className="fw-medium small">
+                                {inv.patient?.name || (inv.patient?.firstName ? `${inv.patient.firstName} ${inv.patient.lastName || ''}`.trim() : 'N/A')}
+                              </td>
+                              <td className="font-monospace fw-bold small">
+                                ₹{inv.totalAmount?.toFixed(2)}
+                              </td>
+                              <td>
+                                <StatusBadge status={inv.status} />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    </div>
+                  </>
+                )}
               </Card>
             </Col>
           </Row>

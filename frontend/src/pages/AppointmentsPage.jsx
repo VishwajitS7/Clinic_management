@@ -24,8 +24,11 @@ import StatusBadge from '../components/common/StatusBadge';
 import TimeSlotSelector from '../components/schedules/TimeSlotSelector';
 
 const AppointmentsPage = () => {
-  const { user } = useAuth();
+  const { user, doctor: currentDoctor } = useAuth();
   const navigate = useNavigate();
+  const isDoctor = user?.role === 'DOCTOR';
+  const isAdmin = user?.role === 'ADMIN';
+  const isReceptionist = user?.role === 'RECEPTIONIST';
 
   // Appointments State
   const [appointments, setAppointments] = useState([]);
@@ -338,22 +341,26 @@ const AppointmentsPage = () => {
         <div>
           <h2 className="fw-bold mb-1 d-flex align-items-center gap-2">
             <i className="bi bi-calendar-check text-primary"></i>
-            Appointments Engine
+            {isDoctor ? 'My Appointments & Patient Queue' : 'Appointments Engine'}
           </h2>
           <p className="text-muted mb-0 small">
-            Interval conflict-managed clinical appointment scheduling and status lifecycle.
+            {isDoctor
+              ? 'Review your scheduled patients, track waiting status, and initiate clinical encounters.'
+              : 'Interval conflict-managed clinical appointment scheduling and status lifecycle.'}
           </p>
         </div>
-        <div>
-          <Button
-            variant="primary"
-            className="d-flex align-items-center gap-2 shadow-sm"
-            onClick={() => setShowBookingModal(true)}
-          >
-            <i className="bi bi-plus-circle"></i>
-            Book New Appointment
-          </Button>
-        </div>
+        {(!isDoctor || isAdmin) && (
+          <div>
+            <Button
+              variant="primary"
+              className="d-flex align-items-center gap-2 shadow-sm"
+              onClick={() => setShowBookingModal(true)}
+            >
+              <i className="bi bi-plus-circle"></i>
+              Book New Appointment
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Alerts */}
@@ -388,23 +395,32 @@ const AppointmentsPage = () => {
                 />
               </InputGroup>
             </Col>
-            <Col xs={6} md={3}>
-              <Form.Select
-                size="sm"
-                value={selectedDoctorFilter}
-                onChange={(e) => {
-                  setSelectedDoctorFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="">All Doctors</option>
-                {doctorsList.map((doc) => (
-                  <option key={doc._id} value={doc._id}>
-                    {doc.user?.name} ({doc.specialization})
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>
+            {isDoctor ? (
+              <Col xs={6} md={3} className="d-flex align-items-center">
+                <div className="d-flex align-items-center bg-primary-subtle text-primary border border-primary-subtle rounded px-2 py-1 small w-100">
+                  <i className="bi bi-person-badge me-2 fs-6"></i>
+                  <span className="fw-semibold text-truncate">Dr. {user?.name}</span>
+                </div>
+              </Col>
+            ) : (
+              <Col xs={6} md={3}>
+                <Form.Select
+                  size="sm"
+                  value={selectedDoctorFilter}
+                  onChange={(e) => {
+                    setSelectedDoctorFilter(e.target.value);
+                    setPage(1);
+                  }}
+                >
+                  <option value="">All Doctors</option>
+                  {doctorsList.map((doc) => (
+                    <option key={doc._id} value={doc._id}>
+                      {doc.user?.name} ({doc.specialization})
+                    </option>
+                  ))}
+                </Form.Select>
+              </Col>
+            )}
             <Col xs={6} md={3}>
               <Form.Select
                 size="sm"
@@ -563,8 +579,8 @@ const AppointmentsPage = () => {
                             </Button>
                           )}
 
-                          {/* Cancel action for SCHEDULED or CONFIRMED */}
-                          {(apt.status === 'SCHEDULED' || apt.status === 'CONFIRMED') && (
+                          {/* Cancel action for SCHEDULED or CONFIRMED (Admin & Receptionist only) */}
+                          {(apt.status === 'SCHEDULED' || apt.status === 'CONFIRMED') && !isDoctor && (
                             <Button
                               variant="outline-danger"
                               size="sm"
@@ -575,8 +591,8 @@ const AppointmentsPage = () => {
                             </Button>
                           )}
 
-                          {/* Direct Consultation Link if confirmed or completed */}
-                          {(apt.status === 'CONFIRMED' || apt.status === 'SCHEDULED') && (
+                          {/* Direct Consultation Link if confirmed or completed (Admin & Doctor only) */}
+                          {(apt.status === 'CONFIRMED' || apt.status === 'SCHEDULED') && (isAdmin || isDoctor) && (
                             <Button
                               variant="primary"
                               size="sm"
@@ -584,6 +600,18 @@ const AppointmentsPage = () => {
                               onClick={() => navigate(`/consultations?appointmentId=${apt._id}`)}
                             >
                               <i className="bi bi-clipboard2-pulse"></i>
+                            </Button>
+                          )}
+
+                          {/* Cashier & Invoicing Link (Admin & Receptionist only) */}
+                          {(apt.status === 'CONFIRMED' || apt.status === 'COMPLETED') && (isAdmin || isReceptionist) && (
+                            <Button
+                              variant="outline-success"
+                              size="sm"
+                              title="Billing & Invoicing"
+                              onClick={() => navigate(`/invoices`)}
+                            >
+                              <i className="bi bi-receipt-cutoff"></i>
                             </Button>
                           )}
                         </div>
