@@ -25,3 +25,15 @@ export const getAvailableSlots = async (doctorId, dateString) => {
     params: { date: dateString },
   });
 };
+
+export const scheduleService = {
+  getDoctorSchedules,
+  createDoctorSchedule,
+  updateSchedule,
+  deleteSchedule,
+  getAvailableSlots,
+  getDoctorAvailableSlots: getAvailableSlots,
+};
+
+export default scheduleService;
+

@@ -23,3 +23,16 @@ export const updateDoctor = async (id, doctorData) => {
 export const toggleDoctorStatus = async (id, isActive) => {
   return api.patch(`/doctors/${id}/status`, { isActive });
 };
+
+export const doctorService = {
+  getAllDoctors: getDoctors,
+  getDoctors,
+  getDoctorById,
+  getSpecializations,
+  createDoctor,
+  updateDoctor,
+  toggleDoctorStatus,
+};
+
+export default doctorService;
+

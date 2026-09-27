@@ -105,7 +105,7 @@ function App() {
       </main>
       <footer className="border-top py-3 bg-white text-center text-muted small">
         <div className="container">
-          Clinic Appointment Manager &bull; Campus Recruitment Technical Project &bull; Phase 4 Patients
+          Clinic Appointment Manager &bull; Comprehensive Full-Stack Healthcare Platform &bull; Production v1.0
         </div>
       </footer>
     </div>

@@ -1,0 +1,375 @@
+{
+  "info": {
+    "_postman_id": "clinic-appointment-manager-collection-2026",
+    "name": "Clinic Appointment Manager API",
+    "description": "Comprehensive REST API Collection for Clinic Appointment Manager full-stack technical project. Covers Auth, Patients, Doctors, Schedules, Dynamic Slot Availability, Appointments, Conflict Engine, Consultations, Prescriptions, Invoices, and Payments.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. System Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Authentication",
+      "item": [
+        {
+          "name": "Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.token) {",
+                  "    pm.collectionVariables.set('authToken', res.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@clinic.com\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Doctor",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"dr.rahul@clinic.com\",\n  \"password\": \"Doctor@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Receptionist",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"receptionist@clinic.com\",\n  \"password\": \"Recep@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Patients",
+      "item": [
+        {
+          "name": "List Patients (Search & Pagination)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/patients?page=1&limit=10&search=&gender=&bloodGroup=",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Patient Dossier by ID (Section 33)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/patients/{{patientId}}", "host": ["{{baseUrl}}"], "path": ["patients", "{{patientId}}"] }
+          }
+        },
+        {
+          "name": "Register New Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Rohan\",\n  \"lastName\": \"Verma\",\n  \"gender\": \"MALE\",\n  \"dateOfBirth\": \"1992-06-15\",\n  \"phone\": \"9876500099\",\n  \"email\": \"rohan.verma@example.com\",\n  \"bloodGroup\": \"O+\",\n  \"address\": {\n    \"street\": \"45 MG Road\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"zipCode\": \"400001\"\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/patients", "host": ["{{baseUrl}}"], "path": ["patients"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Doctors & Scheduling",
+      "item": [
+        {
+          "name": "List Doctors",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/doctors", "host": ["{{baseUrl}}"], "path": ["doctors"] }
+          }
+        },
+        {
+          "name": "Get Doctor Available Slots (Dynamic Section 15)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/doctors/{{doctorId}}/available-slots?date=2026-09-28",
+              "host": ["{{baseUrl}}"],
+              "path": ["doctors", "{{doctorId}}", "available-slots"],
+              "query": [{ "key": "date", "value": "2026-09-28" }]
+            }
+          }
+        },
+        {
+          "name": "Get Doctor Schedules",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/doctors/{{doctorId}}/schedules", "host": ["{{baseUrl}}"], "path": ["doctors", "{{doctorId}}", "schedules"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Appointments Engine",
+      "item": [
+        {
+          "name": "List Appointments (Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/appointments?status=SCHEDULED&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"],
+              "query": [
+                { "key": "status", "value": "SCHEDULED" },
+                { "key": "page", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Book Appointment (Conflict Tested)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient\": \"{{patientId}}\",\n  \"doctor\": \"{{doctorId}}\",\n  \"appointmentDate\": \"2026-09-28\",\n  \"startTime\": \"10:00\",\n  \"endTime\": \"10:30\",\n  \"reason\": \"Routine consultation\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/appointments", "host": ["{{baseUrl}}"], "path": ["appointments"] }
+          }
+        },
+        {
+          "name": "Update Appointment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONFIRMED\",\n  \"notes\": \"Patient confirmed via telephone call\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/appointments/{{appointmentId}}/status", "host": ["{{baseUrl}}"], "path": ["appointments", "{{appointmentId}}", "status"] }
+          }
+        },
+        {
+          "name": "Reschedule Appointment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentDate\": \"2026-09-29\",\n  \"startTime\": \"11:00\",\n  \"endTime\": \"11:30\",\n  \"reason\": \"Patient requested morning slot change\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/appointments/{{appointmentId}}/reschedule", "host": ["{{baseUrl}}"], "path": ["appointments", "{{appointmentId}}", "reschedule"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Consultations",
+      "item": [
+        {
+          "name": "List Consultations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/consultations", "host": ["{{baseUrl}}"], "path": ["consultations"] }
+          }
+        },
+        {
+          "name": "Record Consultation (Transitions Appointment to COMPLETED)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"{{appointmentId}}\",\n  \"symptoms\": \"Mild fever for 2 days, sore throat and dry cough\",\n  \"diagnosis\": \"Acute Upper Respiratory Tract Infection\",\n  \"clinicalNotes\": \"Vitals stable. BP: 120/80 mmHg. Chest clear on auscultation.\",\n  \"followUpDate\": \"2026-10-05\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/consultations", "host": ["{{baseUrl}}"], "path": ["consultations"] }
+          }
+        },
+        {
+          "name": "Get Consultation by Appointment ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/consultations/appointment/{{appointmentId}}", "host": ["{{baseUrl}}"], "path": ["consultations", "appointment", "{{appointmentId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Prescriptions",
+      "item": [
+        {
+          "name": "List Prescriptions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/prescriptions", "host": ["{{baseUrl}}"], "path": ["prescriptions"] }
+          }
+        },
+        {
+          "name": "Issue Prescription (Section 21 format)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultationId\": \"{{consultationId}}\",\n  \"items\": [\n    {\n      \"medicineName\": \"Amoxicillin\",\n      \"dosage\": \"500 mg\",\n      \"frequency\": \"Three times daily\",\n      \"duration\": \"5 days\",\n      \"route\": \"Oral\",\n      \"instructions\": \"Take after meals with water\"\n    },\n    {\n      \"medicineName\": \"Paracetamol\",\n      \"dosage\": \"650 mg\",\n      \"frequency\": \"SOS / As needed for fever\",\n      \"duration\": \"3 days\",\n      \"route\": \"Oral\",\n      \"instructions\": \"Take post-meal\"\n    }\n  ],\n  \"instructions\": \"Maintain hydration, warm saline gargles, adequate bed rest.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/prescriptions", "host": ["{{baseUrl}}"], "path": ["prescriptions"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Billing & Payments",
+      "item": [
+        {
+          "name": "List Invoices",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/invoices", "host": ["{{baseUrl}}"], "path": ["invoices"] }
+          }
+        },
+        {
+          "name": "Generate Invoice (Backend Financial Recalculation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"appointmentId\": \"{{appointmentId}}\",\n  \"items\": [\n    {\n      \"description\": \"Specialist Consultation\",\n      \"quantity\": 1,\n      \"unitPrice\": 800\n    },\n    {\n      \"description\": \"ECG Diagnostics\",\n      \"quantity\": 1,\n      \"unitPrice\": 500\n    }\n  ],\n  \"discount\": 100,\n  \"tax\": 0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/invoices", "host": ["{{baseUrl}}"], "path": ["invoices"] }
+          }
+        },
+        {
+          "name": "Record Payment (Overpayment Prevention Enforced)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500,\n  \"paymentMethod\": \"UPI\",\n  \"transactionReference\": \"UPI-REF-99281729\",\n  \"notes\": \"First instalment via Google Pay\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/invoices/{{invoiceId}}/payments", "host": ["{{baseUrl}}"], "path": ["invoices", "{{invoiceId}}", "payments"] }
+          }
+        },
+        {
+          "name": "List Payments Ledger",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/invoices/payments", "host": ["{{baseUrl}}"], "path": ["invoices", "payments"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Dashboard Analytics",
+      "item": [
+        {
+          "name": "Get Dashboard Statistics (Role-based)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/dashboard/stats", "host": ["{{baseUrl}}"], "path": ["dashboard", "stats"] }
+          }
+        }
+      ]
+    }
+  ]
+}
