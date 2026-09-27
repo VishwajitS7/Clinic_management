@@ -12,6 +12,7 @@ import DoctorSchedulesPage from './pages/DoctorSchedulesPage';
 import AppointmentsPage from './pages/AppointmentsPage';
 import ConsultationsPage from './pages/ConsultationsPage';
 import PrescriptionsPage from './pages/PrescriptionsPage';
+import InvoicesPage from './pages/InvoicesPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
@@ -87,6 +88,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <PrescriptionsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/invoices"
+            element={
+              <ProtectedRoute>
+                <InvoicesPage />
               </ProtectedRoute>
             }
           />

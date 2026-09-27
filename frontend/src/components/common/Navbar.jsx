@@ -61,6 +61,9 @@ const Navbar = () => {
                 <Nav.Link as={NavLink} to="/prescriptions" className="fw-medium">
                   <i className="bi bi-capsule me-1"></i> Prescriptions
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/invoices" className="fw-medium">
+                  <i className="bi bi-receipt me-1"></i> Billing
+                </Nav.Link>
               </>
             )}
             <Nav.Link as={NavLink} to="/" end className="fw-medium">
