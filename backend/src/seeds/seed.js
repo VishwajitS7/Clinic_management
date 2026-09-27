@@ -141,7 +141,7 @@ const seedDatabase = async () => {
     // ==========================================
     console.log(' Seeding Doctor schedules...');
     const schedulesData = [];
-    const weekdays = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+    const weekdays = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
     doctors.forEach((doc, idx) => {
       weekdays.forEach((day) => {
@@ -156,7 +156,7 @@ const seedDatabase = async () => {
         });
 
         // Evening Slot (Mon-Fri)
-        if (day !== 'SATURDAY') {
+        if (day !== 'SATURDAY' && day !== 'SUNDAY') {
           schedulesData.push({
             doctor: doc._id,
             dayOfWeek: day,

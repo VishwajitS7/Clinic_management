@@ -10,6 +10,7 @@ import {
   Alert,
   Badge,
 } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getDoctors } from '../services/doctorService';
 import {
@@ -353,11 +354,23 @@ const DoctorSchedulesPage = () => {
                 />
 
                 {selectedSlot && (
-                  <div className="mt-3 p-2 bg-success-subtle text-success border border-success-subtle rounded small d-flex justify-content-between align-items-center">
-                    <span>
-                      Selected: <strong>{selectedSlot.startTime} - {selectedSlot.endTime}</strong>
-                    </span>
-                    <Badge bg="success">Ready for Booking</Badge>
+                  <div className="mt-3 p-3 bg-success-subtle text-success border border-success-subtle rounded small">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <span>
+                        Selected: <strong>{selectedSlot.startTime} - {selectedSlot.endTime}</strong>
+                      </span>
+                      <Badge bg="success">Ready for Booking</Badge>
+                    </div>
+                    <Button
+                      as={Link}
+                      to={`/appointments?doctorId=${selectedDoctorId}&date=${simDate}&startTime=${selectedSlot.startTime}&endTime=${selectedSlot.endTime}`}
+                      variant="success"
+                      size="sm"
+                      className="w-100 d-flex align-items-center justify-content-center gap-2 fw-semibold shadow-sm"
+                    >
+                      <i className="bi bi-calendar-plus"></i>
+                      Book Appointment for this Slot &rarr;
+                    </Button>
                   </div>
                 )}
               </div>

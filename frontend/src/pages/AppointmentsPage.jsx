@@ -14,7 +14,7 @@ import {
   Pagination,
   InputGroup,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import appointmentService from '../services/appointmentService';
 import doctorService from '../services/doctorService';
 import patientService from '../services/patientService';
@@ -96,6 +96,26 @@ const AppointmentsPage = () => {
     };
     fetchReferences();
   }, []);
+
+  // Pre-fill booking modal if URL search params provided (e.g. from doctor schedule or patient dossier)
+  const [searchParams] = useSearchParams();
+  const paramDoctorId = searchParams.get('doctorId');
+  const paramPatientId = searchParams.get('patientId');
+  const paramDate = searchParams.get('date');
+  const paramStartTime = searchParams.get('startTime');
+  const paramEndTime = searchParams.get('endTime');
+
+  useEffect(() => {
+    if (paramDoctorId || paramDate || paramPatientId) {
+      if (paramDoctorId) setBookingDoctor(paramDoctorId);
+      if (paramPatientId) setBookingPatient(paramPatientId);
+      if (paramDate) setBookingDate(paramDate);
+      if (paramStartTime && paramEndTime) {
+        setSelectedSlot({ startTime: paramStartTime, endTime: paramEndTime, available: true });
+      }
+      setShowBookingModal(true);
+    }
+  }, [paramDoctorId, paramPatientId, paramDate, paramStartTime, paramEndTime]);
 
   // Fetch Appointments
   const fetchAppointments = useCallback(async () => {
@@ -220,6 +240,12 @@ const AppointmentsPage = () => {
       setSelectedSlot(null);
       setBookingReason('');
       setBookingNotes('');
+      // Reset filter states so newly booked appointment is immediately visible
+      setSelectedDoctorFilter('');
+      setSelectedStatusFilter('');
+      setSelectedDateFilter('');
+      setSearch('');
+      setPage(1);
       fetchAppointments();
     } catch (err) {
       setBookingError(err.response?.data?.message || 'Failed to book appointment');

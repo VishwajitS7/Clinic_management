@@ -2,33 +2,27 @@ import api from './api';
 
 export const appointmentService = {
   getAppointments: async (params = {}) => {
-    const response = await api.get('/appointments', { params });
-    return response.data;
+    return api.get('/appointments', { params });
   },
 
   getAppointmentById: async (id) => {
-    const response = await api.get(`/appointments/${id}`);
-    return response.data;
+    return api.get(`/appointments/${id}`);
   },
 
   createAppointment: async (appointmentData) => {
-    const response = await api.post('/appointments', appointmentData);
-    return response.data;
+    return api.post('/appointments', appointmentData);
   },
 
   updateAppointmentStatus: async (id, status, notes = '') => {
-    const response = await api.patch(`/appointments/${id}/status`, { status, notes });
-    return response.data;
+    return api.patch(`/appointments/${id}/status`, { status, notes });
   },
 
   rescheduleAppointment: async (id, rescheduleData) => {
-    const response = await api.put(`/appointments/${id}/reschedule`, rescheduleData);
-    return response.data;
+    return api.put(`/appointments/${id}/reschedule`, rescheduleData);
   },
 
   cancelAppointment: async (id, reason = '') => {
-    const response = await api.delete(`/appointments/${id}`, { data: { reason } });
-    return response.data;
+    return api.delete(`/appointments/${id}`, { data: { reason } });
   },
 };
 

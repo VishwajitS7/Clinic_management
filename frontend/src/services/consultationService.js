@@ -2,28 +2,23 @@ import api from './api';
 
 export const consultationService = {
   getConsultations: async (params = {}) => {
-    const response = await api.get('/consultations', { params });
-    return response.data;
+    return api.get('/consultations', { params });
   },
 
   getConsultationById: async (id) => {
-    const response = await api.get(`/consultations/${id}`);
-    return response.data;
+    return api.get(`/consultations/${id}`);
   },
 
   getConsultationByAppointmentId: async (appointmentId) => {
-    const response = await api.get(`/consultations/appointment/${appointmentId}`);
-    return response.data;
+    return api.get(`/consultations/appointment/${appointmentId}`);
   },
 
   createConsultation: async (consultationData) => {
-    const response = await api.post('/consultations', consultationData);
-    return response.data;
+    return api.post('/consultations', consultationData);
   },
 
   updateConsultation: async (id, updateData) => {
-    const response = await api.put(`/consultations/${id}`, updateData);
-    return response.data;
+    return api.put(`/consultations/${id}`, updateData);
   },
 };
 

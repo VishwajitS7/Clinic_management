@@ -2,28 +2,23 @@ import api from './api';
 
 export const prescriptionService = {
   getPrescriptions: async (params = {}) => {
-    const response = await api.get('/prescriptions', { params });
-    return response.data;
+    return api.get('/prescriptions', { params });
   },
 
   getPrescriptionById: async (id) => {
-    const response = await api.get(`/prescriptions/${id}`);
-    return response.data;
+    return api.get(`/prescriptions/${id}`);
   },
 
   getPrescriptionByConsultationId: async (consultationId) => {
-    const response = await api.get(`/prescriptions/consultation/${consultationId}`);
-    return response.data;
+    return api.get(`/prescriptions/consultation/${consultationId}`);
   },
 
   createPrescription: async (prescriptionData) => {
-    const response = await api.post('/prescriptions', prescriptionData);
-    return response.data;
+    return api.post('/prescriptions', prescriptionData);
   },
 
   updatePrescription: async (id, updateData) => {
-    const response = await api.put(`/prescriptions/${id}`, updateData);
-    return response.data;
+    return api.put(`/prescriptions/${id}`, updateData);
   },
 };
 

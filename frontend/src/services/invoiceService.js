@@ -2,28 +2,23 @@ import api from './api';
 
 export const invoiceService = {
   getInvoices: async (params = {}) => {
-    const response = await api.get('/invoices', { params });
-    return response.data;
+    return api.get('/invoices', { params });
   },
 
   getInvoiceById: async (id) => {
-    const response = await api.get(`/invoices/${id}`);
-    return response.data;
+    return api.get(`/invoices/${id}`);
   },
 
   createInvoice: async (invoiceData) => {
-    const response = await api.post('/invoices', invoiceData);
-    return response.data;
+    return api.post('/invoices', invoiceData);
   },
 
   recordPayment: async (invoiceId, paymentData) => {
-    const response = await api.post(`/invoices/${invoiceId}/payments`, paymentData);
-    return response.data;
+    return api.post(`/invoices/${invoiceId}/payments`, paymentData);
   },
 
   getPayments: async (params = {}) => {
-    const response = await api.get('/invoices/payments', { params });
-    return response.data;
+    return api.get('/invoices/payments', { params });
   },
 };
 
