@@ -34,19 +34,35 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// Welcome route
-app.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Welcome to Clinic Appointment Manager API',
-    healthCheck: '/api/health',
-  });
-});
+const path = require('path');
+const fs = require('fs');
 
 // API Routes
 app.use('/api', apiRoutes);
 
-// Catch-all 404 Handler
+// Serve frontend client in production / standalone deployment
+const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+} else {
+  // Fallback API welcome route
+  app.get('/', (req, res) => {
+    res.status(200).json({
+      success: true,
+      message: 'Welcome to Clinic Appointment Manager API',
+      healthCheck: '/api/health',
+    });
+  });
+}
+
+// Catch-all 404 Handler for unresolved API routes
 app.use(notFoundHandler);
 
 // Centralized Error Handler

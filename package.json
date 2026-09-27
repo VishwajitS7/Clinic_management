@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Full-Stack Clinic Appointment Manager application for campus recruitment technical demonstration.",
   "scripts": {
+    "start": "node backend/src/server.js",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build && npm --prefix backend install",
     "install:backend": "npm --prefix backend install",
     "install:frontend": "npm --prefix frontend install",
     "install:all": "npm run install:backend && npm run install:frontend",
