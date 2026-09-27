@@ -1,28 +1,52 @@
-import React from 'react';
-import { Container, Row, Col, Card, Badge, Alert, Button } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Badge,
+  Alert,
+  Button,
+  Spinner,
+  Table,
+  ProgressBar,
+} from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import dashboardService from '../services/dashboardService';
+import StatusBadge from '../components/common/StatusBadge';
 
 const DashboardPage = () => {
   const { user, doctor } = useAuth();
+  const navigate = useNavigate();
 
-  const getRoleVariant = (role) => {
-    switch (role) {
-      case 'ADMIN':
-        return 'primary';
-      case 'DOCTOR':
-        return 'success';
-      case 'RECEPTIONIST':
-        return 'info';
-      default:
-        return 'secondary';
-    }
-  };
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      setLoading(true);
+      try {
+        const res = await dashboardService.getStats();
+        setStats(res.data);
+      } catch (err) {
+        console.error('Dashboard fetch error:', err);
+        setError(err.response?.data?.message || 'Failed to fetch dashboard intelligence');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  const metrics = stats?.metrics || {};
+  const statusBreakdown = stats?.statusBreakdown || {};
 
   return (
     <Container className="py-4">
       {/* Welcome Banner */}
-      <Card className="clinic-card border-0 shadow-sm mb-4 bg-primary text-white p-4">
+      <Card className="border-0 shadow-sm mb-4 bg-primary text-white p-4">
         <Row className="align-items-center">
           <Col md={8}>
             <div className="d-flex align-items-center gap-2 mb-2">
@@ -37,142 +61,313 @@ const DashboardPage = () => {
             </div>
             <h2 className="fw-bold mb-1">Welcome back, {user?.name}!</h2>
             <p className="mb-0 text-white-50">
-              Authenticated securely via JWT. Role permissions strictly enforced on both client and Express server.
+              Real-time clinical intelligence, interval scheduling engine, and billing operations.
             </p>
           </Col>
           <Col md={4} className="text-md-end mt-3 mt-md-0">
             <div className="bg-white text-dark p-3 rounded shadow-sm d-inline-block text-start">
               <div className="small text-muted fw-semibold">SESSION DETAILS</div>
               <div className="fw-bold">{user?.email}</div>
-              <div className="small text-muted">ID: {user?._id?.slice(-8)}</div>
+              <div className="small text-muted">ID: {user?._id?.slice(-8)} &bull; Active</div>
             </div>
           </Col>
         </Row>
       </Card>
 
-      {/* Role-Specific Capabilities */}
-      <Row className="g-4 mb-4">
-        <Col md={4}>
-          <Card className="clinic-card border-0 shadow-sm h-100">
-            <Card.Body>
-              <div className="d-flex align-items-center gap-2 mb-3">
-                <div className="p-2 rounded bg-primary-subtle text-primary">
-                  <i className="bi bi-shield-lock fs-5"></i>
-                </div>
-                <h5 className="fw-bold mb-0">Role Authorization</h5>
-              </div>
-              <p className="text-muted small">
-                Your account is authenticated as <strong>{user?.role}</strong>. Backend endpoints verify your role via
-                <code>authorizeRoles('{user?.role}')</code> middleware.
-              </p>
-              <div className="p-2 bg-light rounded small font-monospace">
-                JWT verified &bull; Token active
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)} className="py-2 small">
+          <i className="bi bi-exclamation-triangle me-1"></i> {error}
+        </Alert>
+      )}
 
-        {user?.role === 'DOCTOR' && doctor && (
-          <Col md={4}>
-            <Card className="clinic-card border-0 shadow-sm h-100">
-              <Card.Body>
-                <div className="d-flex align-items-center gap-2 mb-3">
-                  <div className="p-2 rounded bg-success-subtle text-success">
-                    <i className="bi bi-heart-pulse fs-5"></i>
-                  </div>
-                  <h5 className="fw-bold mb-0">Doctor Profile</h5>
-                </div>
-                <div className="small">
-                  <div className="mb-1"><strong>Specialization:</strong> {doctor.specialization}</div>
-                  <div className="mb-1"><strong>Qualification:</strong> {doctor.qualification}</div>
-                  <div className="mb-1"><strong>Experience:</strong> {doctor.experienceYears} Years</div>
-                  <div className="mb-1"><strong>License:</strong> {doctor.licenseNumber}</div>
-                  <div><strong>Consultation Fee:</strong> ₹{doctor.consultationFee}</div>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        )}
+      {loading ? (
+        <div className="text-center py-5">
+          <Spinner animation="border" variant="primary" />
+          <div className="text-muted small mt-2">Computing clinic analytics...</div>
+        </div>
+      ) : (
+        <>
+          {/* Key KPI Cards */}
+          <Row className="g-3 mb-4">
+            {user?.role === 'DOCTOR' ? (
+              <>
+                <Col xs={6} md={3}>
+                  <Card className="border-0 shadow-sm p-3 h-100 border-start border-4 border-primary">
+                    <div className="text-muted small fw-semibold text-uppercase">Today's Queue</div>
+                    <div className="h3 fw-bold text-primary mb-0 mt-1">
+                      {metrics.todayAppointments ?? 0}
+                    </div>
+                    <div className="small text-muted">Active patients today</div>
+                  </Card>
+                </Col>
+                <Col xs={6} md={3}>
+                  <Card className="border-0 shadow-sm p-3 h-100 border-start border-4 border-info">
+                    <div className="text-muted small fw-semibold text-uppercase">Total Encounters</div>
+                    <div className="h3 fw-bold text-info mb-0 mt-1">
+                      {metrics.totalAppointments ?? 0}
+                    </div>
+                    <div className="small text-muted">Total booked slots</div>
+                  </Card>
+                </Col>
+                <Col xs={6} md={3}>
+                  <Card className="border-0 shadow-sm p-3 h-100 border-start border-4 border-success">
+                    <div className="text-muted small fw-semibold text-uppercase">Consultations</div>
+                    <div className="h3 fw-bold text-success mb-0 mt-1">
+                      {metrics.completedConsultations ?? 0}
+                    </div>
+                    <div className="small text-muted">Completed diagnostic visits</div>
+                  </Card>
+                </Col>
+                <Col xs={6} md={3}>
+                  <Card className="border-0 shadow-sm p-3 h-100 border-start border-4 border-warning">
+                    <div className="text-muted small fw-semibold text-uppercase">Rx Prescribed</div>
+                    <div className="h3 fw-bold text-warning-emphasis mb-0 mt-1">
+                      {metrics.prescriptionsIssued ?? 0}
+                    </div>
+                    <div className="small text-muted">Medical prescriptions</div>
+                  </Card>
+                </Col>
+              </>
+            ) : (
+              <>
+                <Col xs={6} md={3}>
+                  <Card className="border-0 shadow-sm p-3 h-100 border-start border-4 border-primary">
+                    <div className="text-muted small fw-semibold text-uppercase">Active Patients</div>
+                    <div className="h3 fw-bold text-primary mb-0 mt-1">
+                      {metrics.totalPatients ?? 0}
+                    </div>
+                    <div className="small text-muted">Registered in clinic</div>
+                  </Card>
+                </Col>
+                <Col xs={6} md={3}>
+                  <Card className="border-0 shadow-sm p-3 h-100 border-start border-4 border-info">
+                    <div className="text-muted small fw-semibold text-uppercase">Today's Visits</div>
+                    <div className="h3 fw-bold text-info mb-0 mt-1">
+                      {metrics.todayAppointments ?? 0}
+                    </div>
+                    <div className="small text-muted">Scheduled today</div>
+                  </Card>
+                </Col>
+                <Col xs={6} md={3}>
+                  <Card className="border-0 shadow-sm p-3 h-100 border-start border-4 border-success">
+                    <div className="text-muted small fw-semibold text-uppercase">Collected Revenue</div>
+                    <div className="h3 fw-bold text-success font-monospace mb-0 mt-1">
+                      ₹{(metrics.totalRevenue || 0).toLocaleString()}
+                    </div>
+                    <div className="small text-muted">Receipts cleared</div>
+                  </Card>
+                </Col>
+                <Col xs={6} md={3}>
+                  <Card className="border-0 shadow-sm p-3 h-100 border-start border-4 border-danger">
+                    <div className="text-muted small fw-semibold text-uppercase">Outstanding Dues</div>
+                    <div className="h3 fw-bold text-danger font-monospace mb-0 mt-1">
+                      ₹{(metrics.totalOutstandingDue || 0).toLocaleString()}
+                    </div>
+                    <div className="small text-muted">Pending balance</div>
+                  </Card>
+                </Col>
+              </>
+            )}
+          </Row>
 
-        <Col md={user?.role === 'DOCTOR' ? 4 : 8}>
-          <Card className="clinic-card border-0 shadow-sm h-100">
-            <Card.Body>
-              <div className="d-flex align-items-center gap-2 mb-3">
-                <div className="p-2 rounded bg-info-subtle text-info">
-                  <i className="bi bi-check-circle fs-5"></i>
-                </div>
-                <h5 className="fw-bold mb-0">Assigned Responsibilities</h5>
+          {/* Appointment Status Distribution Bar */}
+          <Card className="border-0 shadow-sm mb-4 p-3">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <span className="small fw-semibold text-muted text-uppercase">
+                Appointment Lifecycle Distribution
+              </span>
+              <div className="d-flex gap-3 small">
+                <span><Badge bg="info">Scheduled: {statusBreakdown.SCHEDULED || 0}</Badge></span>
+                <span><Badge bg="primary">Confirmed: {statusBreakdown.CONFIRMED || 0}</Badge></span>
+                <span><Badge bg="success">Completed: {statusBreakdown.COMPLETED || 0}</Badge></span>
+                <span><Badge bg="danger">Cancelled: {statusBreakdown.CANCELLED || 0}</Badge></span>
               </div>
-              {user?.role === 'ADMIN' && (
-                <ul className="small text-muted ps-3 mb-0">
-                  <li>Full administrative supervision over Doctors, Patients, Schedules</li>
-                  <li>Access to Revenue, Invoice adjustments, and clinic-wide analytics</li>
-                  <li>Can view all Appointments, Consultations, and Prescriptions</li>
-                </ul>
-              )}
-              {user?.role === 'DOCTOR' && (
-                <ul className="small text-muted ps-3 mb-0">
-                  <li>View daily schedule and assigned patient queues</li>
-                  <li>Record clinical symptoms, diagnoses, and follow-up intervals</li>
-                  <li>Create and edit prescriptions with embedded medicines</li>
-                </ul>
-              )}
-              {user?.role === 'RECEPTIONIST' && (
-                <ul className="small text-muted ps-3 mb-0">
-                  <li>Register and search patient records</li>
-                  <li>Schedule, confirm, reschedule, and cancel appointments</li>
-                  <li>Generate invoices and record partial/full payments</li>
-                </ul>
-              )}
-            </Card.Body>
+            </div>
+            <ProgressBar style={{ height: '10px' }}>
+              <ProgressBar variant="info" now={(statusBreakdown.SCHEDULED || 0) * 10} key={1} />
+              <ProgressBar variant="primary" now={(statusBreakdown.CONFIRMED || 0) * 10} key={2} />
+              <ProgressBar variant="success" now={(statusBreakdown.COMPLETED || 0) * 10} key={3} />
+              <ProgressBar variant="danger" now={(statusBreakdown.CANCELLED || 0) * 10} key={4} />
+            </ProgressBar>
           </Card>
-        </Col>
-      </Row>
 
-      {/* Quick Navigation Cards */}
-      <h5 className="fw-bold mb-3 d-flex align-items-center gap-2">
-        <i className="bi bi-grid text-primary"></i> Module Directory (Upcoming Phases)
-      </h5>
-      <Row className="g-3">
-        <Col sm={6} md={3}>
-          <Card
-            as={Link}
-            to="/patients"
-            className="clinic-card border-0 shadow-sm text-center p-3 h-100 text-decoration-none"
-            style={{ cursor: 'pointer' }}
-          >
-            <i className="bi bi-people fs-2 text-primary mb-2"></i>
-            <h6 className="fw-bold mb-1 text-dark">Patients</h6>
-            <p className="text-muted small mb-0">Directory & Dossiers</p>
-          </Card>
-        </Col>
-        <Col sm={6} md={3}>
-          <Card
-            as={Link}
-            to="/doctors"
-            className="clinic-card border-0 shadow-sm text-center p-3 h-100 text-decoration-none"
-            style={{ cursor: 'pointer' }}
-          >
-            <i className="bi bi-person-badge fs-2 text-success mb-2"></i>
-            <h6 className="fw-bold mb-1 text-dark">Doctors</h6>
-            <p className="text-muted small mb-0">Profiles & Schedules</p>
-          </Card>
-        </Col>
-        <Col sm={6} md={3}>
-          <Card className="clinic-card border-0 shadow-sm text-center p-3 h-100">
-            <i className="bi bi-calendar3 fs-2 text-warning mb-2"></i>
-            <h6 className="fw-bold mb-1">Appointments</h6>
-            <p className="text-muted small mb-0">Phase 7 Conflict Engine</p>
-          </Card>
-        </Col>
-        <Col sm={6} md={3}>
-          <Card className="clinic-card border-0 shadow-sm text-center p-3 h-100">
-            <i className="bi bi-receipt fs-2 text-danger mb-2"></i>
-            <h6 className="fw-bold mb-1">Billing & Invoices</h6>
-            <p className="text-muted small mb-0">Phase 10 Financials</p>
-          </Card>
-        </Col>
-      </Row>
+          {/* Role Quick Links / Navigation Directory */}
+          <h5 className="fw-bold mb-3 d-flex align-items-center gap-2">
+            <i className="bi bi-grid-fill text-primary"></i> Clinical Operations Directory
+          </h5>
+          <Row className="g-3 mb-4">
+            <Col xs={6} md={2}>
+              <Card
+                as={Link}
+                to="/patients"
+                className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
+              >
+                <i className="bi bi-people fs-2 text-primary mb-2"></i>
+                <h6 className="fw-bold mb-1 text-dark">Patients</h6>
+                <p className="text-muted small mb-0">Dossiers & History</p>
+              </Card>
+            </Col>
+            <Col xs={6} md={2}>
+              <Card
+                as={Link}
+                to="/doctors"
+                className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
+              >
+                <i className="bi bi-person-badge fs-2 text-success mb-2"></i>
+                <h6 className="fw-bold mb-1 text-dark">Doctors</h6>
+                <p className="text-muted small mb-0">Specialist Directory</p>
+              </Card>
+            </Col>
+            <Col xs={6} md={2}>
+              <Card
+                as={Link}
+                to="/schedules"
+                className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
+              >
+                <i className="bi bi-calendar-range fs-2 text-info mb-2"></i>
+                <h6 className="fw-bold mb-1 text-dark">Schedules</h6>
+                <p className="text-muted small mb-0">Weekly Rosters</p>
+              </Card>
+            </Col>
+            <Col xs={6} md={2}>
+              <Card
+                as={Link}
+                to="/appointments"
+                className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
+              >
+                <i className="bi bi-calendar-check fs-2 text-warning mb-2"></i>
+                <h6 className="fw-bold mb-1 text-dark">Appointments</h6>
+                <p className="text-muted small mb-0">Conflict Engine</p>
+              </Card>
+            </Col>
+            <Col xs={6} md={2}>
+              <Card
+                as={Link}
+                to="/consultations"
+                className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
+              >
+                <i className="bi bi-clipboard2-pulse fs-2 text-danger mb-2"></i>
+                <h6 className="fw-bold mb-1 text-dark">Consultations</h6>
+                <p className="text-muted small mb-0">Diagnoses & Notes</p>
+              </Card>
+            </Col>
+            <Col xs={6} md={2}>
+              <Card
+                as={Link}
+                to="/invoices"
+                className="border-0 shadow-sm text-center p-3 h-100 text-decoration-none bg-white hover-shadow"
+              >
+                <i className="bi bi-receipt-cutoff fs-2 text-secondary mb-2"></i>
+                <h6 className="fw-bold mb-1 text-dark">Billing</h6>
+                <p className="text-muted small mb-0">Invoices & Receipts</p>
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Recent Operational Activity */}
+          <Row className="g-4">
+            <Col md={7}>
+              <Card className="border-0 shadow-sm h-100">
+                <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                  <span className="fw-bold">
+                    <i className="bi bi-clock-history me-2 text-primary"></i>
+                    Recent Appointments
+                  </span>
+                  <Button
+                    as={Link}
+                    to="/appointments"
+                    variant="outline-primary"
+                    size="sm"
+                    className="small"
+                  >
+                    View All
+                  </Button>
+                </Card.Header>
+                <div className="table-responsive">
+                  <Table hover size="sm" align="middle" className="mb-0">
+                    <thead className="table-light small text-muted text-uppercase">
+                      <tr>
+                        <th>Code</th>
+                        <th>Patient</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(stats?.recentAppointments || stats?.upcomingAppointments || []).map((apt) => (
+                        <tr key={apt._id}>
+                          <td className="font-monospace text-primary fw-semibold small">
+                            {apt.appointmentCode}
+                          </td>
+                          <td className="fw-medium small">
+                            {apt.patient ? `${apt.patient.firstName} ${apt.patient.lastName}` : 'N/A'}
+                          </td>
+                          <td className="small text-muted">
+                            {new Date(apt.appointmentDate).toLocaleDateString()} ({apt.startTime})
+                          </td>
+                          <td>
+                            <StatusBadge status={apt.status} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+              </Card>
+            </Col>
+
+            <Col md={5}>
+              <Card className="border-0 shadow-sm h-100">
+                <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                  <span className="fw-bold">
+                    <i className="bi bi-cash-stack me-2 text-success"></i>
+                    Recent Invoices
+                  </span>
+                  <Button
+                    as={Link}
+                    to="/invoices"
+                    variant="outline-success"
+                    size="sm"
+                    className="small"
+                  >
+                    View All
+                  </Button>
+                </Card.Header>
+                <div className="table-responsive">
+                  <Table hover size="sm" align="middle" className="mb-0">
+                    <thead className="table-light small text-muted text-uppercase">
+                      <tr>
+                        <th>Invoice #</th>
+                        <th>Patient</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(stats?.recentInvoices || []).map((inv) => (
+                        <tr key={inv._id}>
+                          <td className="font-monospace text-primary fw-semibold small">
+                            {inv.invoiceNumber}
+                          </td>
+                          <td className="fw-medium small">
+                            {inv.patient ? `${inv.patient.firstName} ${inv.patient.lastName}` : 'N/A'}
+                          </td>
+                          <td className="font-monospace fw-bold small">
+                            ₹{inv.totalAmount?.toFixed(2)}
+                          </td>
+                          <td>
+                            <StatusBadge status={inv.status} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+        </>
+      )}
     </Container>
   );
 };
