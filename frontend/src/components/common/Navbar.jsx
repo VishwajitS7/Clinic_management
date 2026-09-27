@@ -1,16 +1,21 @@
-import React from 'react';
-import { Navbar as BsNavbar, Container, Nav, Badge, Button } from 'react-bootstrap';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Navbar as BsNavbar, Container, Nav, NavDropdown, Badge, Button } from 'react-bootstrap';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [expanded, setExpanded] = useState(false);
 
   const handleLogout = async () => {
+    setExpanded(false);
     await logout();
     navigate('/login');
   };
+
+  const closeNav = () => setExpanded(false);
 
   const getRoleBadgeVariant = (role) => {
     switch (role) {
@@ -25,70 +30,191 @@ const Navbar = () => {
     }
   };
 
+  // Check if clinical routes are active
+  const isClinicalActive =
+    location.pathname.startsWith('/consultations') ||
+    location.pathname.startsWith('/prescriptions');
+
+  // Check if doctor/schedule routes are active
+  const isDoctorActive =
+    location.pathname.startsWith('/doctors') ||
+    location.pathname.startsWith('/schedules');
+
+  // Check if system routes are active
+  const isSystemActive =
+    location.pathname === '/' ||
+    location.pathname === '/architecture';
+
   return (
-    <BsNavbar bg="white" expand="lg" className="border-bottom sticky-top py-2 shadow-sm">
-      <Container>
-        <BsNavbar.Brand as={Link} to={isAuthenticated ? "/dashboard" : "/"} className="d-flex align-items-center gap-2 fw-bold text-primary">
-          <i className="bi bi-hospital fs-4 text-primary"></i>
-          <span>Clinic Appointment Manager</span>
-          <Badge bg="primary" pill className="ms-1 small fw-normal">
-            v1.0
-          </Badge>
+    <BsNavbar
+      bg="white"
+      expand="xl"
+      expanded={expanded}
+      className="border-bottom sticky-top py-2 shadow-sm clinic-navbar"
+      style={{ backdropFilter: 'blur(10px)', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
+    >
+      <Container fluid="xl">
+        {/* Brand */}
+        <BsNavbar.Brand
+          as={Link}
+          to={isAuthenticated ? '/dashboard' : '/'}
+          onClick={closeNav}
+          className="d-flex align-items-center gap-2 fw-bold text-primary py-0 me-3"
+        >
+          <div className="brand-icon-wrapper rounded-3 bg-primary text-white d-flex align-items-center justify-content-center p-2 shadow-sm">
+            <i className="bi bi-hospital fs-5"></i>
+          </div>
+          <div className="d-flex flex-column">
+            <span className="fs-6 fw-bold lh-1 text-dark">Clinic Management</span>
+            <span className="small text-muted" style={{ fontSize: '0.7rem' }}>
+              Healthcare Platform <Badge bg="primary-subtle" text="primary" className="ms-1 px-1">v1.0</Badge>
+            </span>
+          </div>
         </BsNavbar.Brand>
-        <BsNavbar.Toggle aria-controls="main-navbar-nav" />
+
+        {/* Mobile Toggle */}
+        <BsNavbar.Toggle
+          aria-controls="main-navbar-nav"
+          onClick={() => setExpanded(!expanded)}
+          className="border-0 shadow-none p-1"
+        >
+          <i className={`bi ${expanded ? 'bi-x-lg' : 'bi-list'} fs-4 text-primary`}></i>
+        </BsNavbar.Toggle>
+
+        {/* Collapsible Content */}
         <BsNavbar.Collapse id="main-navbar-nav">
-          <Nav className="ms-auto align-items-center gap-2">
-            {isAuthenticated && (
+          <Nav className="me-auto align-items-xl-center gap-1 my-2 my-xl-0">
+            {isAuthenticated ? (
               <>
-                <Nav.Link as={NavLink} to="/dashboard" className="fw-medium">
-                  <i className="bi bi-speedometer2 me-1"></i> Dashboard
+                <Nav.Link
+                  as={NavLink}
+                  to="/dashboard"
+                  onClick={closeNav}
+                  className="nav-item-custom"
+                >
+                  <i className="bi bi-speedometer2 me-1 text-primary"></i> Dashboard
                 </Nav.Link>
-                <Nav.Link as={NavLink} to="/patients" className="fw-medium">
-                  <i className="bi bi-people me-1"></i> Patients
+
+                <Nav.Link
+                  as={NavLink}
+                  to="/appointments"
+                  onClick={closeNav}
+                  className="nav-item-custom"
+                >
+                  <i className="bi bi-calendar-check me-1 text-warning"></i> Appointments
                 </Nav.Link>
-                <Nav.Link as={NavLink} to="/doctors" className="fw-medium">
-                  <i className="bi bi-person-badge me-1"></i> Doctors
+
+                <Nav.Link
+                  as={NavLink}
+                  to="/patients"
+                  onClick={closeNav}
+                  className="nav-item-custom"
+                >
+                  <i className="bi bi-people me-1 text-info"></i> Patients
                 </Nav.Link>
-                <Nav.Link as={NavLink} to="/schedules" className="fw-medium">
-                  <i className="bi bi-calendar-range me-1"></i> Schedules
-                </Nav.Link>
-                <Nav.Link as={NavLink} to="/appointments" className="fw-medium">
-                  <i className="bi bi-calendar-check me-1"></i> Appointments
-                </Nav.Link>
-                <Nav.Link as={NavLink} to="/consultations" className="fw-medium">
-                  <i className="bi bi-clipboard2-pulse me-1"></i> Consultations
-                </Nav.Link>
-                <Nav.Link as={NavLink} to="/prescriptions" className="fw-medium">
-                  <i className="bi bi-capsule me-1"></i> Prescriptions
-                </Nav.Link>
-                <Nav.Link as={NavLink} to="/invoices" className="fw-medium">
-                  <i className="bi bi-receipt me-1"></i> Billing
+
+                {/* Doctors & Schedules Dropdown */}
+                <NavDropdown
+                  title={
+                    <span className={isDoctorActive ? 'fw-bold text-primary' : ''}>
+                      <i className="bi bi-person-badge me-1 text-success"></i> Doctors
+                    </span>
+                  }
+                  id="doctors-nav-dropdown"
+                  className="nav-dropdown-custom"
+                >
+                  <NavDropdown.Item as={NavLink} to="/doctors" onClick={closeNav}>
+                    <i className="bi bi-person-lines-fill me-2 text-primary"></i>
+                    Specialist Directory
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={NavLink} to="/schedules" onClick={closeNav}>
+                    <i className="bi bi-calendar-range me-2 text-success"></i>
+                    Weekly Schedules & Rosters
+                  </NavDropdown.Item>
+                </NavDropdown>
+
+                {/* Clinical Consultations & Prescriptions Dropdown */}
+                <NavDropdown
+                  title={
+                    <span className={isClinicalActive ? 'fw-bold text-primary' : ''}>
+                      <i className="bi bi-clipboard2-pulse me-1 text-danger"></i> Clinical
+                    </span>
+                  }
+                  id="clinical-nav-dropdown"
+                  className="nav-dropdown-custom"
+                >
+                  <NavDropdown.Item as={NavLink} to="/consultations" onClick={closeNav}>
+                    <i className="bi bi-journal-medical me-2 text-danger"></i>
+                    Consultations & Diagnosis
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={NavLink} to="/prescriptions" onClick={closeNav}>
+                    <i className="bi bi-capsule me-2 text-info"></i>
+                    Prescriptions (Rx)
+                  </NavDropdown.Item>
+                </NavDropdown>
+
+                <Nav.Link
+                  as={NavLink}
+                  to="/invoices"
+                  onClick={closeNav}
+                  className="nav-item-custom"
+                >
+                  <i className="bi bi-receipt-cutoff me-1 text-secondary"></i> Billing
                 </Nav.Link>
               </>
-            )}
-            <Nav.Link as={NavLink} to="/" end className="fw-medium">
-              <i className="bi bi-activity me-1"></i> System Health
-            </Nav.Link>
-            <Nav.Link as={NavLink} to="/architecture" className="fw-medium">
-              <i className="bi bi-diagram-3 me-1"></i> Architecture
-            </Nav.Link>
+            ) : null}
 
+            {/* System Info Dropdown */}
+            <NavDropdown
+              title={
+                <span className={isSystemActive ? 'fw-bold text-primary' : 'text-muted'}>
+                  <i className="bi bi-gear me-1"></i> System
+                </span>
+              }
+              id="system-nav-dropdown"
+              className="nav-dropdown-custom"
+            >
+              <NavDropdown.Item as={NavLink} to="/" onClick={closeNav} end>
+                <i className="bi bi-activity me-2 text-success"></i>
+                System Health & Uptime
+              </NavDropdown.Item>
+              <NavDropdown.Item as={NavLink} to="/architecture" onClick={closeNav}>
+                <i className="bi bi-diagram-3 me-2 text-primary"></i>
+                Architecture & Models
+              </NavDropdown.Item>
+            </NavDropdown>
+          </Nav>
+
+          {/* User Auth Profile / Login */}
+          <Nav className="align-items-xl-center">
             {isAuthenticated ? (
-              <div className="d-flex align-items-center gap-2 ms-lg-3 border-start ps-lg-3 mt-2 mt-lg-0">
-                <div className="d-flex flex-column text-end small">
-                  <span className="fw-bold text-dark">{user?.name}</span>
-                  <Badge bg={getRoleBadgeVariant(user?.role)} className="text-uppercase fw-semibold" style={{ fontSize: '0.65rem' }}>
-                    {user?.role}
-                  </Badge>
+              <div className="d-flex flex-column flex-xl-row align-items-xl-center gap-2 pt-2 pt-xl-0 border-top border-xl-0 mt-2 mt-xl-0">
+                <div className="d-flex align-items-center gap-2 px-2 py-1 rounded bg-light border">
+                  <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div className="d-flex flex-column text-start">
+                    <span className="fw-semibold text-dark text-truncate small" style={{ maxWidth: '140px', lineHeight: '1.2' }}>
+                      {user?.name}
+                    </span>
+                    <Badge
+                      bg={getRoleBadgeVariant(user?.role)}
+                      className="text-uppercase fw-normal"
+                      style={{ fontSize: '0.62rem', width: 'fit-content' }}
+                    >
+                      {user?.role}
+                    </Badge>
+                  </div>
                 </div>
+
                 <Button
                   variant="outline-danger"
                   size="sm"
                   onClick={handleLogout}
-                  className="d-flex align-items-center gap-1 ms-1"
+                  className="d-flex align-items-center justify-content-center gap-1 mt-1 mt-xl-0 py-1 px-2"
                 >
                   <i className="bi bi-box-arrow-right"></i>
-                  Sign Out
+                  <span>Sign Out</span>
                 </Button>
               </div>
             ) : (
@@ -97,10 +223,11 @@ const Navbar = () => {
                 to="/login"
                 variant="primary"
                 size="sm"
-                className="ms-lg-3 d-flex align-items-center gap-1"
+                onClick={closeNav}
+                className="d-flex align-items-center justify-content-center gap-1 px-3 shadow-sm"
               >
                 <i className="bi bi-box-arrow-in-right"></i>
-                Sign In
+                <span>Sign In to Portal</span>
               </Button>
             )}
           </Nav>
