@@ -29,13 +29,22 @@ const DoctorSchedulesPage = () => {
   const isAdmin = user?.role === 'ADMIN';
   const isDoctor = user?.role === 'DOCTOR';
   const isReceptionist = user?.role === 'RECEPTIONIST';
-  const canManageSchedule = isAdmin || (isDoctor && (!selectedDoctorId || selectedDoctorId === currentDoctor?._id));
 
-  // Selected Doctor
+  // Selected Doctor State
   const [doctorsList, setDoctorsList] = useState([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState(
     currentDoctor ? currentDoctor._id : ''
   );
+
+  // Can manage schedule if Admin or Doctor viewing own schedule
+  const canManageSchedule = isAdmin || (isDoctor && (!selectedDoctorId || selectedDoctorId === currentDoctor?._id));
+
+  // Sync selectedDoctorId when currentDoctor hydrates
+  useEffect(() => {
+    if (isDoctor && currentDoctor?._id) {
+      setSelectedDoctorId(currentDoctor._id);
+    }
+  }, [isDoctor, currentDoctor]);
 
   // Schedules state
   const [doctorInfo, setDoctorInfo] = useState(null);
@@ -63,8 +72,9 @@ const DoctorSchedulesPage = () => {
   const [simLoading, setSimLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
-  // Fetch doctors list for Admin dropdown
+  // Fetch doctors list for Admin and Receptionist dropdown
   useEffect(() => {
+    if (isDoctor) return;
     const fetchDoctorsList = async () => {
       try {
         const res = await getDoctors({ limit: 100, isActive: 'true' });
@@ -80,7 +90,7 @@ const DoctorSchedulesPage = () => {
     };
 
     fetchDoctorsList();
-  }, [selectedDoctorId]);
+  }, [isDoctor, selectedDoctorId]);
 
   // Fetch schedules for the selected doctor
   const fetchSchedules = useCallback(async () => {
